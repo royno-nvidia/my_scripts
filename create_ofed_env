@@ -1,0 +1,91 @@
+#!/bin/bash
+ofed_version=""
+configure_ofed_env_location=""
+script_name="create_ofed_env"
+
+while [ ! -z "$1" ]
+do
+	case "$1" in
+		-f | --full-env)
+		configure_ofed_env_location="$2"
+		if [[ ! -f "$configure_ofed_env_location" ]]
+		then
+			echo "-E- ${configure_ofed_env_location} script does not exist"
+			return 1	
+		fi
+		shift
+		;;
+		-v | --version)
+		if [ -z "$2" ]
+		then
+			echo "-E- must get version argument [-v MAJOR_MINOR]"
+			return 1
+		else
+			if [[ $2 =~ ^[0-9]_[0-9]$ ]]
+			then 
+				ofed_version="$2"
+			else
+				echo "-E- wrong version! should be MAJOR_MINOR"
+				return 1
+			fi	
+		fi
+		shift
+		;;
+		-h | --help)
+		echo "Usage: ${script_name} [options] -v MAJOR_MINOR
+			
+	use this script to build OFED environment.
+	important: need to source this script for full functionality.
+
+		-h, --help 		display this help message and exit
+		-f, --full-env		make full enviroment creation witout the abillty for cherry-pick
+		-v, --version 		OFED version MAJOR_MINOR [must!]
+"
+		return 1
+		;;
+		*)
+		echo "-E- Unsupported option: $1" >&2
+		echo "use -h flag to display help menu" 
+		return 1
+		;;
+	esac
+	shift
+done
+if [ -z "$ofed_version" ]
+then
+	echo "-E- must get version argument [-v MAJOR_MINOR]"
+	return 1
+fi
+my_user=$(whoami)
+
+echo "starting..."
+echo "creating /srv/${my_user}_OFED_${ofed_version} directory..."
+
+cd /srv
+sudo rm -rf ${my_user}_OFED_${ofed_version}
+sudo mkdir ${my_user}_OFED_${ofed_version}
+sudo chown ${my_user} ${my_user}_OFED_${ofed_version} 
+cd ${my_user}_OFED_${ofed_version}
+git clone ssh://${my_user}@l-gerrit.mtl.labs.mlnx:29418/mlnx_ofed/mlnx-ofa_kernel-4.0 && scp -p -P 29418 ${my_user}@l-gerrit.mtl.labs.mlnx:hooks/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/
+cd mlnx-ofa_kernel-4.0
+git checkout -b ofed_${ofed_version} origin/mlnx_ofed_${ofed_version}
+echo "inside ${PWD} directory"
+echo "creating links..."
+ln -s ofed_scripts/configure
+ln -s ofed_scripts/makefile 0
+ln -s ofed_scripts/Makefile 
+echo "finished creating ofed environment"
+echo "**********************************"
+if [ -z "$configure_ofed_env_location" ]
+then	
+	echo ""
+	echo "cherry-pick required commits and run /swgwork/${my_user}/rebase_${ofed_version}/ofed_scripts/configure_ofed_env"
+	echo ""
+else
+	echo ""
+	echo "executing ${configure_ofed_env_location}"
+	echo ""
+	source ${configure_ofed_env_location}
+fi
+
+
