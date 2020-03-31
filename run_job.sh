@@ -19,10 +19,13 @@ job_packages=""
 job_kernels=""
 selected_module=""
 selected_kernel=""
+ignore_regex=""
+is_ignore=0
 is_full=0
 is_short=0
 is_custom=0
 without_odp=0
+debug_mode=0
 
 ##########FUNCTIONS##################
 
@@ -89,6 +92,9 @@ do
 		-s | --short-list)
 		is_short=1
 		;;
+		-d | --debug-mode)
+		debug_mode=1
+		;;
 		-c | --custom)
 		selected_kernel="$2"
 		ret=$(check_selected_kernel "${selected_kernel}")
@@ -121,6 +127,11 @@ do
 		esac
 		shift
 		;;
+		-i | --ignore)
+		is_ignore=1
+		ignore_regex="$2"
+		shift
+		;;
 		-h | --help)
 		echo "Usage: ${script_name} [options]
 			
@@ -135,6 +146,8 @@ do
 		-c, --custom 		run check for given kernel plus 3 kernels below 
 		-f, --full-list		run check for all available kernels [default]
 		-s, --sort-list		run check for small list of kernels [can combine with custom list]
+		-i, --ignore		ignore warning contains given argument [argument sould be regex syntax]
+		-d, --debug-mode	print all script variables
 "
 		exit 1
 		;;
@@ -154,6 +167,10 @@ fi
 if [ $without_odp -eq 1 ]; then
 	job_packages="$job_packages,--without-odp"
 fi
+if [ $is_ignore -eq 1 ]; then
+	job_packages="$job_packages --warnings-ignores \"$ignore_regex\""
+fi
+
 if [ $is_short -eq 1 ]; then
 	job_kernels=$short_list
 	if [ $is_custom -eq 1 ]; then
@@ -166,15 +183,20 @@ fi
 if [ $is_full -eq 1 ] ||  ([ $is_short -eq 0 ] && [ $is_custom -eq 0 ]); then
 	job_kernels=$full_list
 fi
-#checks
-#echo "module: $selected_module"
-#echo "kernel: $selected_kernel"
-#echo "is full: $is_full"
-#echo "is short: $is_short"
-#echo "is custom: $is_custom"
-#echo "without odp: $without_odp"
-#echo "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&KERNELS=${job_kernels}&PACKAGES=${job_packages}"
-#echo "**************************"
+
+if [ $debug_mode -eq 1 ]; then
+echo "run_job debug mode:"
+echo "module: $selected_module"
+echo "kernel: $selected_kernel"
+echo "is full: $is_full"
+echo "is short: $is_short"
+echo "is custom: $is_custom"
+echo "is ignore: $is_ignore"
+echo "regex to ignore: $ignore_regex"
+echo "without odp: $without_odp"
+echo "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&KERNELS=${job_kernels}&PACKAGES=${job_packages}"
+echo "**************************"
+else
 echo "start docker build with configuration:" 
 echo "module check: $selected_module"
 if [ $without_odp -eq 1 ]; then
@@ -184,3 +206,4 @@ echo "compile over kernels: $job_kernels"
 curl -u valentinef:17Click17 "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&KERNELS=${job_kernels}&PACKAGES=${job_packages}"
 echo "job is runnig, see results at link:"
 echo "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/" 
+fi
