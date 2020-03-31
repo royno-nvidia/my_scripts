@@ -168,7 +168,7 @@ if [ $without_odp -eq 1 ]; then
 	job_packages="$job_packages,--without-odp"
 fi
 if [ $is_ignore -eq 1 ]; then
-	job_packages="$job_packages --warnings-ignores \"$ignore_regex\""
+	job_packages="$job_packages&WARNINGS_IGNORES=$ignore_regex"
 fi
 
 if [ $is_short -eq 1 ]; then
