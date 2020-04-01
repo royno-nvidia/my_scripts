@@ -1,0 +1,12 @@
+#!/bin/bash
+
+vi_cmd="vim"
+#vi_cmd="vim -p"
+suffix=".rej"
+
+rej_file="$1"
+src_file=${rej_file%$suffix}
+exec \
+$vi_cmd $rej_file +"vsplit $src_file"
+#$vi_cmd $src_file{${suffix},}
+

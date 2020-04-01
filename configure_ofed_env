@@ -1,0 +1,23 @@
+#!/bin/sh
+
+INFINIBAND_INFO=/etc/infiniband/info
+
+if test -x $INFINIBAND_INFO; then
+	opts=`$INFINIBAND_INFO | grep 'Configure options: ' | cut -d: -f2`
+else
+	echo "No /etc/infiniband/info found, using default options"
+	opts="--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx4-mod --with-mlx4_en-mod --with-mlx5-mod --with-ipoib-mod --with-memtrack --with-mdev-mod"
+	#opts="--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-memtrack --with-mdev-mod"
+fi
+
+for file in configure Makefile makefile; do
+	test -f $file -o -h file || ln -sfn ofed_scripts/$file
+done
+
+if echo "x$1" | grep -q '^x--'; then
+	opts="$opts $@"
+fi
+
+echo "Configure options: $opts"
+sleep 3
+./configure $opts -j $(nproc)
