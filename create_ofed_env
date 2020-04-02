@@ -6,6 +6,12 @@ clone_path=""
 
 while [ ! -z "$1" ]
 do
+	if [[ $1 =~ ^[0-9]_[0-9]$ ]]
+	then 
+		ofed_version="$1"
+		shift
+		continue
+	fi
 	case "$1" in
 		-f | --full-env)
 		configure_ofed_env_location="$2"
@@ -16,36 +22,20 @@ do
 		fi
 		shift
 		;;
-		-v | --version)
-		if [ -z "$2" ]
-		then
-			echo "-E- must get version argument [-v MAJOR_MINOR]"
-			return 1
-		else
-			if [[ $2 =~ ^[0-9]_[0-9]$ ]]
-			then 
-				ofed_version="$2"
-			else
-				echo "-E- wrong version! should be MAJOR_MINOR"
-				return 1
-			fi	
-		fi
-		shift
-		;;
 		-p | --path)
 			clone_path=$2
 		shift
 		;;
 
 		-h | --help)
-		echo "Usage: ${script_name} [options] -v MAJOR_MINOR
+		echo "Usage: ${script_name} [options] MAJOR_MINOR
 			
 	use this script to build OFED environment.
 	important: need to source this script for full functionality.
+	run this script as USER.
 
 		-h, --help 		display this help message and exit
-		-f, --full-env		make full enviroment creation witout the abillty for cherry-pick
-		-v, --version 		OFED version MAJOR_MINOR [must!]
+		-f, --full-env		make and configure full OFED enviroment without the abillty for cherry-pick
 		-p, --path		directory path where OFED clone to
 "
 		return 1
@@ -68,10 +58,10 @@ my_user=$(whoami)
 echo "starting..."
 if [ -z "$clone_path" ]
 then
-	cd /srv
-	sudo rm -rf ${my_user}_OFED_${ofed_version}
-	sudo mkdir ${my_user}_OFED_${ofed_version}
-	sudo chown ${my_user} ${my_user}_OFED_${ofed_version} 
+	cd /var/tmp
+	rm -rf ${my_user}_OFED_${ofed_version}
+	mkdir ${my_user}_OFED_${ofed_version}
+	chown ${my_user} ${my_user}_OFED_${ofed_version} 
 	cd ${my_user}_OFED_${ofed_version}
 else
 	cd ${clone_path}
@@ -89,7 +79,7 @@ echo "----------------------------------"
 if [ -z "$configure_ofed_env_location" ]
 then	
 	echo ""
-	echo "you can cherry-pick required commits and run 'configure_ofed_env'"
+	echo "you can cherry-pick required commits and run '/swgwork/royno/OFED/my_scripts/configure_ofed_env'"
 	echo ""
 else
 	echo ""
