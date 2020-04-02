@@ -1,38 +1,38 @@
 #!/bin/bash
 ##### SCRIPT VARIABLES #####
-full_list=("linux-5.6-rc2,linux-5.5,linux-5.4,linux-5.3,linux-5.2,linux-5.0,linux-4.20,linux-4.19,linux-4.18,linux-4.17-rc1,linux-4.16,linux-4.15,linux-4.14.3,linux-4.13,linux-4.12-rc6,linux-4.11,linux-4.10-Without-VXLAN,linux-4.10-IRQ_POLL-OFF,linux-4.10,linux-4.9,linux-4.8-rc4,linux-4.7-rc7,linux-4.6.3,linux-4.5.5-300.fc24.x86_64,linux-4.5.1,linux-4.4.73-5-default,linux-4.4.21-69-default,linux-4.4.0-22-generic,linux-4.4,linux-4.3-rc6,linux-4.2.3-300.fc23.x86_64,linux-4.2-rc8,linux-4.1.12-37.5.1.el6uek.x86_64,linux-4.1,linux-4.0.4-301.fc22.x86_64,linux-4.0.1,linux-3.19.0,linux-3.18,linux-3.17.4-301.fc21.x86_64,linux-3.17.1,linux-3.16-rc7,linux-3.15.7-200.fc20.x86_64,linux-3.15,linux-3.14,linux-3.13.1,linux-3.12.49-11-xen,linux-3.12.49-11-default,linux-3.12.28-4-default,linux-3.10,linux-3.10.0-327.el7.x86_64,linux-3.10.0-514.el7.x86_64-ok,linux-3.10.0-229.el7.x86_64,linux-3.10.0-123.el7.x86_64,linux-3.10.0-657.el7.x86_64,linux-3.10.0-693.el7.x86_64,linux-3.10.0-862.el7.x86_64,linux-3.10.0-957.el7.x86_64")
-short_list=("linux-5.6-rc2,linux-5.0,linux-4.16,linux-4.11,linux-4.9,linux-4.5.1,linux-4.2-rc8,linux-3.19.0,linux-3.15,linux-3.10,linux-3.10.0-123.el7.x86_64")
-kernel_list="
+IGNORE_WARNIGS=""
+FULL_LIST=("linux-5.6-rc2,linux-5.5,linux-5.4,linux-5.3,linux-5.2,linux-5.0,linux-4.20,linux-4.19,linux-4.18,linux-4.17-rc1,linux-4.16,linux-4.15,linux-4.14.3,linux-4.13,linux-4.12-rc6,linux-4.11,linux-4.10-Without-VXLAN,linux-4.10-IRQ_POLL-OFF,linux-4.10,linux-4.9,linux-4.8-rc4,linux-4.7-rc7,linux-4.6.3,linux-4.5.5-300.fc24.x86_64,linux-4.5.1,linux-4.4.73-5-default,linux-4.4.21-69-default,linux-4.4.0-22-generic,linux-4.4,linux-4.3-rc6,linux-4.2.3-300.fc23.x86_64,linux-4.2-rc8,linux-4.1.12-37.5.1.el6uek.x86_64,linux-4.1,linux-4.0.4-301.fc22.x86_64,linux-4.0.1,linux-3.19.0,linux-3.18,linux-3.17.4-301.fc21.x86_64,linux-3.17.1,linux-3.16-rc7,linux-3.15.7-200.fc20.x86_64,linux-3.15,linux-3.14,linux-3.13.1,linux-3.12.49-11-xen,linux-3.12.49-11-default,linux-3.12.28-4-default,linux-3.10,linux-3.10.0-327.el7.x86_64,linux-3.10.0-514.el7.x86_64-ok,linux-3.10.0-229.el7.x86_64,linux-3.10.0-123.el7.x86_64,linux-3.10.0-657.el7.x86_64,linux-3.10.0-693.el7.x86_64,linux-3.10.0-862.el7.x86_64,linux-3.10.0-957.el7.x86_64")
+SHORT_LIST=("linux-5.6-rc2,linux-5.0,linux-4.16,linux-4.11,linux-4.9,linux-4.5.1,linux-4.2-rc8,linux-3.19.0,linux-3.15,linux-3.10,linux-3.10.0-123.el7.x86_64")
+KERNEL_LIST="
 	'linux-5.6-rc2'\n'linux-5.5'\n'linux-5.4'\n'linux-5.3'\n'linux-5.2'\n'linux-5.0'\n'linux-4.20'\n'linux-4.19'\n'linux-4.18'\n'linux-4.17-rc1'\n'linux-4.16'\n'linux-4.15'\n'linux-4.14.3'\n'linux-4.13'\n'linux-4.12-rc6'\n'linux-4.11'\n'linux-4.10-Without-VXLAN'\n'linux-4.10-IRQ_POLL-OFF'\n'linux-4.10'\n'linux-4.9'\n'linux-4.8-rc4'\n'linux-4.7-rc7'\n'linux-4.6.3'\n'linux-4.5.5-300.fc24.x86_64'\n'linux-4.5.1'\n'linux-4.4.73-5-default'\n'linux-4.4.21-69-default'\n'linux-4.4.0-22-generic'\n'linux-4.4'\n'linux-4.3-rc6'\n'linux-4.2.3-300.fc23.x86_64'\n'linux-4.2-rc8'\n'linux-4.1.12-37.5.1.el6uek.x86_64'\n'linux-4.1'\n'linux-4.0.4-301.fc22.x86_64'\n'linux-4.0.1'\n'linux-3.19.0'\n'linux-3.18'\n'linux-3.17.4-301.fc21.x86_64'\n'linux-3.17.1'\n'linux-3.16-rc7'\n'linux-3.15.7-200.fc20.x86_64'\n'linux-3.15'\n'linux-3.14'\n'linux-3.13.1'\n'linux-3.12.49-11-xen'\n'linux-3.12.49-11-default'\n'linux-3.12.28-4-default'\n'linux-3.10'\n'linux-3.10.0-327.el7.x86_64'\n'linux-3.10.0-514.el7.x86_64-ok'\n'linux-3.10.0-229.el7.x86_64'\n'linux-3.10.0-123.el7.x86_64'\n'linux-3.10.0-657.el7.x86_64'\n'linux-3.10.0-693.el7.x86_64'\n'linux-3.10.0-862.el7.x86_64'\n'linux-3.10.0-957.el7.x86_64'
 "
-module_list="
-	'ib_core'\n'mlx5_core'\n'mlx5_mod'
+MODULE_LIST="
+	'ib_core'\n''mlx5_mod'
 "
-kernel_arr=("linux-5.6-rc2" "linux-5.5" "linux-5.4" "linux-5.3" "linux-5.2" "linux-5.0" "linux-4.20" "linux-4.19" "linux-4.18" "linux-4.17-rc1" "linux-4.16" "linux-4.15" "linux-4.14.3" "linux-4.13" "linux-4.12-rc6" "linux-4.11" "linux-4.10-Without-VXLAN" "linux-4.10-IRQ_POLL-OFF" "linux-4.10" "linux-4.9" "linux-4.8-rc4" "linux-4.7-rc7" "linux-4.6.3" "linux-4.5.5-300.fc24.x86_64" "linux-4.5.1" "linux-4.4.73-5-default" "linux-4.4.21-69-default" "linux-4.4.0-22-generic" "linux-4.4" "linux-4.3-rc6" "linux-4.2.3-300.fc23.x86_64" "linux-4.2-rc8" "linux-4.1.12-37.5.1.el6uek.x86_64" "linux-4.1" "linux-4.0.4-301.fc22.x86_64" "linux-4.0.1" "linux-3.19.0" "linux-3.18" "linux-3.17.4-301.fc21.x86_64" "linux-3.17.1" "linux-3.16-rc7" "linux-3.15.7-200.fc20.x86_64" "linux-3.15" "linux-3.14" "linux-3.13.1" "linux-3.12.49-11-xen" "linux-3.12.49-11-default" "linux-3.12.28-4-default" "linux-3.10" "linux-3.10.0-327.el7.x86_64" "linux-3.10.0-514.el7.x86_64-ok" "linux-3.10.0-229.el7.x86_64" "linux-3.10.0-123.el7.x86_64" "linux-3.10.0-657.el7.x86_64" "linux-3.10.0-693.el7.x86_64" "linux-3.10.0-862.el7.x86_64" "linux-3.10.0-957.el7.x86_64")
+KERNEL_ARR=("linux-5.6-rc2" "linux-5.5" "linux-5.4" "linux-5.3" "linux-5.2" "linux-5.0" "linux-4.20" "linux-4.19" "linux-4.18" "linux-4.17-rc1" "linux-4.16" "linux-4.15" "linux-4.14.3" "linux-4.13" "linux-4.12-rc6" "linux-4.11" "linux-4.10-Without-VXLAN" "linux-4.10-IRQ_POLL-OFF" "linux-4.10" "linux-4.9" "linux-4.8-rc4" "linux-4.7-rc7" "linux-4.6.3" "linux-4.5.5-300.fc24.x86_64" "linux-4.5.1" "linux-4.4.73-5-default" "linux-4.4.21-69-default" "linux-4.4.0-22-generic" "linux-4.4" "linux-4.3-rc6" "linux-4.2.3-300.fc23.x86_64" "linux-4.2-rc8" "linux-4.1.12-37.5.1.el6uek.x86_64" "linux-4.1" "linux-4.0.4-301.fc22.x86_64" "linux-4.0.1" "linux-3.19.0" "linux-3.18" "linux-3.17.4-301.fc21.x86_64" "linux-3.17.1" "linux-3.16-rc7" "linux-3.15.7-200.fc20.x86_64" "linux-3.15" "linux-3.14" "linux-3.13.1" "linux-3.12.49-11-xen" "linux-3.12.49-11-default" "linux-3.12.28-4-default" "linux-3.10" "linux-3.10.0-327.el7.x86_64" "linux-3.10.0-514.el7.x86_64-ok" "linux-3.10.0-229.el7.x86_64" "linux-3.10.0-123.el7.x86_64" "linux-3.10.0-657.el7.x86_64" "linux-3.10.0-693.el7.x86_64" "linux-3.10.0-862.el7.x86_64" "linux-3.10.0-957.el7.x86_64")
 
 
-script_name="run_job"
-ib_core_flags="--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-memtrack"
-mlx5_core_flags="-with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-core-only-mod"
-mlx5_mod_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod"
-job_packages=""
-job_kernels=""
-selected_module=""
-selected_kernel=""
-ignore_regex=""
-is_ignore=0
-is_full=0
-is_short=0
-is_custom=0
-without_odp=0
-debug_mode=0
+SCRIPT_NAME="run_job"
+IB_CORE_FLAGS="--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-memtrack"
+MLX5_MOD_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod"
+JOB_PACKAGES=""
+JOB_KERNELS=""
+SELECTED_MODULES=""
+SELECTED_KERNEL=""
+IGNORE_REGEX=""
+IS_IGNORE=0
+IS_FULL=0
+IS_SHORT=0
+IS_CUSTOM=0
+WITHOUT_ODP=0
+DEBUG_MODE=0
 
 ##########FUNCTIONS##################
 
 check_selected_kernel()
 {
 local arg=$1; shift 
-for ker in "${kernel_arr[@]}"
+for ker in "${KERNEL_ARR[@]}"
 do
 	if [ $ker = $arg ]; then
 		echo 1
@@ -45,14 +45,14 @@ echo 0
 custom_kernels()
 {
 local how_many=3
-local ret_list="$selected_kernel"
-for ((index=0; index < ${#kernel_arr[@]}; index++));
+local ret_list="$SELECTED_KERNEL"
+for ((index=0; index < ${#KERNEL_ARR[@]}; index++));
 do
-	if [ $selected_kernel = ${kernel_arr[$index]} ]; then
+	if [ $SELECTED_KERNEL = ${KERNEL_ARR[$index]} ]; then
 		index=$((index+1))		
-		while [ $how_many -gt 0 ] && [ $index -lt ${#kernel_arr[@]} ];
+		while [ $how_many -gt 0 ] && [ $index -lt ${#KERNEL_ARR[@]} ];
 		do
-			ret_list="$ret_list,${kernel_arr[$index]}"
+			ret_list="$ret_list,${KERNEL_ARR[$index]}"
 			index=$((index+1))
 			how_many=$((how_many-1))
 		done
@@ -62,8 +62,8 @@ done
 }
 
 ###########MAIN###############
-myBranch=$(git rev-parse --abbrev-ref HEAD)
-if [[ $myBranch == *"backport"* ]]; then
+MY_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [[ $MY_BRANCH == *"backport"* ]]; then
         echo "-E- your current branch is backport branch,"
         echo "please checkout another before running this script"
         exit 1
@@ -72,68 +72,65 @@ while [ ! -z "$1" ]
 do
 	case "$1" in
 		-n | --no-odp)
-		without_odp=1
+		WITHOUT_ODP=1
 		;;
 		-l | --module-list)
 		echo "module list:"
 		echo "------------"
-		echo -e $module_list
+		echo -e $MODULE_LIST
 		exit 1	
 		;;
 		-k | --kernel-list)
 		echo "kernel list:"
 		echo "-----------------"
-		echo -e $kernel_list
+		echo -e $KERNEL_LIST
 		exit 1	
 		;;
 		-f | --full-list)
-		is_full=1
+		IS_FULL=1
 		;;
 		-s | --short-list)
-		is_short=1
+		IS_SHORT=1
 		;;
 		-d | --debug-mode)
-		debug_mode=1
+		DEBUG_MODE=1
 		;;
 		-c | --custom)
-		selected_kernel="$2"
-		ret=$(check_selected_kernel "${selected_kernel}")
+		SELECTED_KERNEL="$2"
+		ret=$(check_selected_kernel "${SELECTED_KERNEL}")
 		if [ "$ret" = "0" ] 
 		then 
-			echo "-E- Unsupported kernek: $selected_kernel" >&2
+			echo "-E- Unsupported kernek: $SELECTED_KERNEL" >&2
 			echo "please check available kernels with -k,--kernel-list"
 			exit 1
 			
 		fi	
-		is_custom=1
+		IS_CUSTOM=1
 		shift
 		;;
 		-m | --module)
-		selected_module="$2"
-		case "$selected_module" in
+		SELECTED_MODULE="$2"
+		case "$SELECTED_MODULE" in
 			ib_core)
-			job_packages=$ib_core_flags
-			;;
-			mlx5_core)
-			job_packages=$mlx5_core_flags
+			JOB_PACKAGES=$IB_CORE_FLAGS
 			;;
 			mlx5_mod)
-			job_packages=$mlx5_mod_flags
+			JOB_PACKAGES=$MLX5_MOD_FLAGS
 			;;
 			*)
-			echo "-E- Unsupported module: $selected_module" >&2
+			echo "-E- Unsupported module: $SELECTED_MODULE" >&2
 			exit 1
 			;;
 		esac
 		shift
 		;;
 		-i | --ignore)
-		is_ignore=1
-		ignore_regex="$2"
+		IS_IGNORE=1
+		IGNORE_REGEX="$2"
 		shift
 		;;
 		-h | --help)
-		echo "Usage: ${script_name} [options]
+		echo "Usage: ${SCRIPT_NAME} [options]
 			
 	use this script to config your jenkins job.
 	this job will build ofed over wanted kernels.
@@ -159,51 +156,51 @@ do
 	esac 
 	shift
 done
-if [ -z "$selected_module" ]
+if [ -z "$SELECTED_MODULE" ]
 then
-	selected_module="ib_core [default]"
-	job_packages=$ib_core_flags
+	SELECTED_MODULE="ib_core [default]"
+	JOB_PACKAGES=$IB_CORE_FLAGS
 fi	
-if [ $without_odp -eq 1 ]; then
-	job_packages="$job_packages,--without-odp"
+if [ $WITHOUT_ODP -eq 1 ]; then
+	JOB_PACKAGES="$JOB_PACKAGES,--without-odp"
 fi
-if [ $is_ignore -eq 1 ]; then
-	job_packages="$job_packages&WARNINGS_IGNORES=$ignore_regex"
+if [ $IS_IGNORE -eq 1 ]; then
+	JOB_PACKAGES="$JOB_PACKAGES&WARNINGS_IGNORES=$IGNORE_REGEX"
 fi
 
-if [ $is_short -eq 1 ]; then
-	job_kernels=$short_list
-	if [ $is_custom -eq 1 ]; then
-		job_kernels="$job_kernels,"
+if [ $IS_SHORT -eq 1 ]; then
+	JOB_KERNELS=$SHORT_LIST
+	if [ $IS_CUSTOM -eq 1 ]; then
+		JOB_KERNELS="$JOB_KERNELS,"
 	fi	
 fi
-if [ $is_custom -eq 1 ]; then
-		job_kernels="$job_kernels$(custom_kernels)"
+if [ $IS_CUSTOM -eq 1 ]; then
+		JOB_KERNELS="$JOB_KERNELS$(custom_kernels)"
 fi
-if [ $is_full -eq 1 ] ||  ([ $is_short -eq 0 ] && [ $is_custom -eq 0 ]); then
-	job_kernels=$full_list
+if [ $IS_FULL -eq 1 ] ||  ([ $IS_SHORT -eq 0 ] && [ $IS_CUSTOM -eq 0 ]); then
+	JOB_KERNELS=$FULL_LIST
 fi
 
-if [ $debug_mode -eq 1 ]; then
+if [ $DEBUG_MODE -eq 1 ]; then
 echo "run_job debug mode:"
-echo "module: $selected_module"
-echo "kernel: $selected_kernel"
-echo "is full: $is_full"
-echo "is short: $is_short"
-echo "is custom: $is_custom"
-echo "is ignore: $is_ignore"
-echo "regex to ignore: $ignore_regex"
-echo "without odp: $without_odp"
-echo "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&KERNELS=${job_kernels}&PACKAGES=${job_packages}"
+echo "module: $SELECTED_MODULE"
+echo "kernel: $SELECTED_KERNEL"
+echo "is full: $IS_FULL"
+echo "is short: $IS_SHORT"
+echo "is custom: $IS_CUSTOM"
+echo "is ignore: $IS_IGNORE"
+echo "regex to ignore: $IGNORE_REGEX"
+echo "without odp: $WITHOUT_ODP"
+echo "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}"
 echo "**************************"
 else
 echo "start docker build with configuration:" 
-echo "module check: $selected_module"
-if [ $without_odp -eq 1 ]; then
+echo "module check: $SELECTED_MODULE"
+if [ $WITHOUT_ODP -eq 1 ]; then
 	echo "compile without ODP"
 fi
-echo "compile over kernels: $job_kernels"
-curl -u valentinef:17Click17 "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&KERNELS=${job_kernels}&PACKAGES=${job_packages}"
+echo "compile over kernels: $JOB_KERNELS"
+curl -u valentinef:17Click17 "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}"
 echo "job is runnig, see results at link:"
 echo "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/" 
 fi
