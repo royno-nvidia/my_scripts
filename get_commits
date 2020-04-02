@@ -1,0 +1,90 @@
+#!/bin/bash
+
+tag=
+end=
+output_dir=patches
+filter=
+files=
+list=1
+get=0
+
+usage()
+{
+	cat <<EOF
+Usage:
+	${0##*/} --tag <tag> [options]
+
+this script must run inside linux upstream git repository.
+
+Options:
+	--tag                     Get patches starting from this tag/commit
+	--end                     Get patches up-to this tag/commit
+	--files                   Filter commits to given file list
+	--list-only               Only list changes
+	--output-dir              Output dir for saving the patches
+	--get-patches             Save patches to given output dir: '$output_dir'
+	-h, --help                Show help message
+EOF
+}
+
+while [ ! -z "$1" ]
+do
+	case "$1" in
+		--list-only)
+		list=1
+		get=0
+		;;
+		--get-patches)
+		list=0
+		get=1
+		;;
+		--tag)
+		tag="$2"
+		shift
+		;;
+		--end)
+		end="$2"
+		shift
+		;;
+		--outdir)
+		output_dir="$2"
+		shift
+		;;
+		--output-dir)
+		output_dir="$2"
+		shift
+		;;
+		--files)
+		files="$2"
+		shift
+		;;
+		-h | *help)
+		usage
+		exit 0
+		;;
+		*)
+		echo "-E- Unsupported option: $1" >&2
+		exit 1
+		;;
+	esac
+	shift
+done
+git pull --dry-run | grep -q -v 'Already up-to-date.' && changed=1
+if [ -z "$tag" ]; then
+	echo "must provide --tag" >&2
+	exit 1
+fi
+
+if [ -e "$files" ]; then
+	files=`cat $files`
+	filter="-- $files"
+fi
+
+echo TAG=$tag
+echo Files: $files
+
+if [ $list -eq 1 ]; then
+	git log --oneline --decorate ${tag}..${end} $filter
+elif [ $get -eq 1 ]; then
+	git format-patch -o $output_dir ${tag}..${end} $filter
+fi
