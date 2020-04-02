@@ -2,21 +2,20 @@
 ##### SCRIPT VARIABLES #####
 input_version=$(ls -a /tmp/ | grep linux | sed -e 's/linux-//')
 ib_core_flags="--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-memtrack"
-mlx5_core_flags="-with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-core-only-mod"
 mlx5_mod_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod"
 my_flags=""
 script_name="init_docker"
 selected_module=""
 without_odp=0
 module_list="
-'ib_core'\n'mlx5_core'\nmlx5_mod
+'ib_core'\nmlx5_mod
 "
 ############################
 
 while [ ! -z "$1" ]
 do
 	case "$1" in
-		--no-odp)
+		--without-odp)
 		without_odp=1
 		;;
 		-l | --module-list)
@@ -31,11 +30,8 @@ do
 			ib_core)
 			my_flags=$ib_core_flags
 			;;
-			mlx5_core)
-			my_flags=$mlx5_core_flags
-			;;
 			mlx5_mod)
-			job_packages=$mlx5_mod_flags
+			my_flags=$mlx5_mod_flags
 			;;
 			*)
 			echo "-E- Unsupported module: $selected_module" >&2
