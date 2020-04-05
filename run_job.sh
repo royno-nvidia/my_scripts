@@ -191,7 +191,7 @@ do
 	shift
 done
 if [[ $GIT_PATH =~ "/mlnx-ofa_kernel-4.0/.git"  ]]; then
-echo "job build from directory: ${GIT_PATH}"
+echo "git repository build: ${GIT_PATH}"
 else
 echo "path at GIT_PATH variable must end with /mlnx-ofa_kernel-4.0/.git" 
 exit 1
@@ -225,9 +225,9 @@ fi
 echo "compile over kernels: $JOB_KERNELS"
 if [ ! -z "$PERMANENT_USER" ]
 then
-curl -u ${PERMANENT_USER} "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
+curl -u ${PERMANENT_USER} "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&GIT_REPOSITORY=${GIT_PATH}&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
 else 
-curl -u $(whoami) "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
+curl -u $(whoami) "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&GIT_REPOSITORY=${GIT_PATH}&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
 fi
 echo "job is runnig, see results at link:"
 echo "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/" 
