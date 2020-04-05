@@ -89,7 +89,7 @@ fi
 while [ ! -z "$1" ]
 do
 	case "$1" in
-		-n | --no-odp)
+		-n | --without-odp)
 		WITHOUT_ODP=1
 		;;
 		-l | --module-list)
@@ -168,7 +168,7 @@ do
 
 		-h, --help 		display this help message and exit.
 		-m, --module 		config job for specific module check [default module is ib_core].
-		-n, --no-odp		ignore odp feature at configure.
+		-n, --without-odp	ignore odp feature at configure.
 		-k, --kernel-list 	display availanle KERNELS and exit.
 		-l, --module-list	display available MODULEs and exit.
 		-c, --custom 		run job for given kernel plus 3 kernels below. 

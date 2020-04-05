@@ -47,7 +47,7 @@ do
 	important: need to source this script for full functionality.
 
 		-h, --help 		display this help message and exit
-		--no-odp		ignore odp feature at configure
+		--without-odp		ignore odp feature at configure
 		-m, --module 		config environment for specific module [default module is ib_core]
 		-l, --module-list	display available MODULEs and exit
 "
