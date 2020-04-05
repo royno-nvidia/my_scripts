@@ -1,9 +1,11 @@
 #!/bin/bash
+#-------------------SCRIPT VARIABLES-------------------#
 ofed_version=""
 configure_ofed_env_location=""
 script_name="create_ofed_env"
 clone_path=""
 
+#------------------------MAIN--------------------------#
 while [ ! -z "$1" ]
 do
 	if [[ $1 =~ ^[0-9]_[0-9]$ ]]

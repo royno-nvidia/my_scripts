@@ -1,5 +1,5 @@
 #!/bin/bash
-##### SCRIPT VARIABLES #####
+#----------------SCRIPT VARIABLES--------------------#
 input_version=$(ls -a /tmp/ | grep linux | sed -e 's/linux-//')
 ib_core_flags="--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-memtrack"
 mlx5_mod_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod"
@@ -10,7 +10,7 @@ without_odp=0
 module_list="
 'ib_core'\nmlx5_mod
 "
-############################
+#--------------------------MAIN-----------------------#
 
 while [ ! -z "$1" ]
 do
@@ -78,4 +78,4 @@ git add -u
 git commit -s -m "Temp commit"
 echo "inside $(pwd)"
 echo "finished!"
-echo "*********"
+echo "---------"

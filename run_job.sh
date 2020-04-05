@@ -1,15 +1,21 @@
 #!/bin/bash
-##### SCRIPT VARIABLES #####
 
-#premanent user get username:gerrit_password, F.E "royno:123123"
+#---------------------USER MUTABLES---------------------------#
+#PREMANENT_USER get username:gerrit_password, F.E "royno:123123"
 #!!please notice!! this user and password are not secured so remember to erase it at the end of use. 
 PERMANENT_USER="valentinef:17Click17"
-###################################################################################################
+#--------------------------------------------------------------------------------------------------#
 
-#ignore warnings get regex arguments, F.E: '"reg1","reg2","reg3"'#
-IGNORE_WARNINGS=".*ibta_vol1_c12.*,.*warnings.*"
-##################################################################
+#GIT_PATH gets full path to /.git directory you wan't to build from.
+#this will be default path unless you use {-g | --git-repo} flag
+#F.E "/swgwork/valentinef/rebase_5_1_backports/mlnx-ofa_kernel-4.0/.git"
+GIT_PATH='/swgwork/valentinef/rebase_5_1_backports/mlnx-ofa_kernel-4.0/.git'
+#----------------------------------------------------------------#
+#IGNORE_WARNINGS get regex arguments, F.E: '"reg1","reg2","reg3"'#
+IGNORE_WARNINGS=".*ibta_vol1_c12.*"
+#----------------------------------------------------------------#
 
+#---------------------SCRIPT VARIABLES---------------------------#
 FULL_LIST=("linux-5.6-rc2,linux-5.5,linux-5.4,linux-5.3,linux-5.2,linux-5.0,linux-4.20,linux-4.19,linux-4.18,linux-4.17-rc1,linux-4.16,linux-4.15,linux-4.14.3,linux-4.13,linux-4.12-rc6,linux-4.11,linux-4.10-Without-VXLAN,linux-4.10-IRQ_POLL-OFF,linux-4.10,linux-4.9,linux-4.8-rc4,linux-4.7-rc7,linux-4.6.3,linux-4.5.5-300.fc24.x86_64,linux-4.5.1,linux-4.4.73-5-default,linux-4.4.21-69-default,linux-4.4.0-22-generic,linux-4.4,linux-4.3-rc6,linux-4.2.3-300.fc23.x86_64,linux-4.2-rc8,linux-4.1.12-37.5.1.el6uek.x86_64,linux-4.1,linux-4.0.4-301.fc22.x86_64,linux-4.0.1,linux-3.19.0,linux-3.18,linux-3.17.4-301.fc21.x86_64,linux-3.17.1,linux-3.16-rc7,linux-3.15.7-200.fc20.x86_64,linux-3.15,linux-3.14,linux-3.13.1,linux-3.12.49-11-xen,linux-3.12.49-11-default,linux-3.12.28-4-default,linux-3.10,linux-3.10.0-327.el7.x86_64,linux-3.10.0-514.el7.x86_64-ok,linux-3.10.0-229.el7.x86_64,linux-3.10.0-123.el7.x86_64,linux-3.10.0-657.el7.x86_64,linux-3.10.0-693.el7.x86_64,linux-3.10.0-862.el7.x86_64,linux-3.10.0-957.el7.x86_64")
 
 SHORT_LIST=("linux-5.6-rc2,linux-5.0,linux-4.16,linux-4.11,linux-4.9,linux-4.5.1,linux-4.2-rc8,linux-3.19.0,linux-3.15,linux-3.10,linux-3.10.0-123.el7.x86_64")
@@ -39,7 +45,7 @@ IS_CUSTOM=0
 WITHOUT_ODP=0
 DEBUG_MODE=0
 
-##########FUNCTIONS##################
+#-------------------FUNCTIONS-----------------#
 
 check_selected_kernel()
 {
@@ -73,7 +79,7 @@ do
 done
 }
 
-###########MAIN###############
+#--------------------MAIN-------------------#
 MY_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [[ $MY_BRANCH == *"backport"* ]]; then
         echo "-E- your current branch is backport branch,"
@@ -145,6 +151,15 @@ do
 		fi	
 		shift
 		;;
+		-g | --git-repo)
+		if [[ $2 =~ "/mlnx-ofa_kernel-4.0/.git" ]]; then
+		GIT_PATH=$2
+		else
+		echo "given path with flag {-g | --git-repo} must end with /mlnx-ofa_kernel-4.0/.git" 
+		exit 1
+		fi
+		shift
+		;;
 		-h | --help)
 		echo "Usage: ${SCRIPT_NAME} [options]
 			
@@ -161,6 +176,8 @@ do
 		-s, --sort-list		run job for small list of kernels [can combine with custom list].
 		-i, --ignore		interactive ignore warning [argument sould be regex syntax, 
 					for permanent ignore add inside script IGNORE_WARNINGS variable].
+		-g, --git-repo		replace default path for git repository job will use as base code.
+					this path must point t /mlnx-ofa_kernel-4.0/.git directory.
 		-d, --debug-mode	activace 'set -x' will output all script log, still activate job.
 "
 		exit 1
@@ -173,6 +190,12 @@ do
 	esac 
 	shift
 done
+if [[ $GIT_PATH =~ "/mlnx-ofa_kernel-4.0/.git"  ]]; then
+echo "job build from directory: ${GIT_PATH}"
+else
+echo "path at GIT_PATH variable must end with /mlnx-ofa_kernel-4.0/.git" 
+exit 1
+fi
 [ $DEBUG_MODE -eq 1 ] && set -x #acivate 'set -x' if DEBUG_MODE is active
 if [ -z "$SELECTED_MODULE" ]
 then
