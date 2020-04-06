@@ -80,7 +80,7 @@ done
 }
 
 #--------------------MAIN-------------------#
-MY_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+MY_BRANCH=$(cat ${GIT_PATH}/HEAD | sed -e 's/.*heads\///')
 if [[ $MY_BRANCH == *"backport"* ]]; then
         echo "-E- your current branch is backport branch,"
         echo "please checkout another before running this script"

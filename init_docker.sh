@@ -11,7 +11,12 @@ module_list="
 'ib_core'\nmlx5_mod
 "
 #--------------------------MAIN-----------------------#
-
+MY_BRANCH=$(cat /git-repo/HEAD | sed -e 's/.*heads\///')
+if [[ $MY_BRANCH == *"backport"* ]]; then
+        echo "-E- your current branch is backport branch,"
+        echo "please checkout another before running this script"
+        exit 1
+fi
 while [ ! -z "$1" ]
 do
 	case "$1" in
