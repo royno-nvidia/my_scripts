@@ -18,8 +18,6 @@ IGNORE_WARNINGS=".*ibta_vol1_c12.*"
 #---------------------SCRIPT VARIABLES---------------------------#
 FULL_LIST=("linux-5.6,linux-5.5,linux-5.4,linux-5.3,linux-5.2,linux-5.0,linux-4.20,linux-4.19,linux-4.18,linux-4.17-rc1,linux-4.16,linux-4.15,linux-4.14.3,linux-4.13,linux-4.12-rc6,linux-4.11,linux-4.10-Without-VXLAN,linux-4.10-IRQ_POLL-OFF,linux-4.10,linux-4.9,linux-4.8-rc4,linux-4.7-rc7,linux-4.6.3,linux-4.5.5-300.fc24.x86_64,linux-4.5.1,linux-4.4.73-5-default,linux-4.4.21-69-default,linux-4.4.0-22-generic,linux-4.4,linux-4.3-rc6,linux-4.2.3-300.fc23.x86_64,linux-4.2-rc8,linux-4.1.12-37.5.1.el6uek.x86_64,linux-4.1,linux-4.0.4-301.fc22.x86_64,linux-4.0.1,linux-3.19.0,linux-3.18,linux-3.17.4-301.fc21.x86_64,linux-3.17.1,linux-3.16-rc7,linux-3.15.7-200.fc20.x86_64,linux-3.15,linux-3.14,linux-3.13.1,linux-3.12.49-11-xen,linux-3.12.49-11-default,linux-3.12.28-4-default,linux-3.10,linux-3.10.0-327.el7.x86_64,linux-3.10.0-514.el7.x86_64-ok,linux-3.10.0-229.el7.x86_64,linux-3.10.0-123.el7.x86_64,linux-3.10.0-657.el7.x86_64,linux-3.10.0-693.el7.x86_64,linux-3.10.0-862.el7.x86_64,linux-3.10.0-957.el7.x86_64")
 
-SHORT_LIST=("linux-5.6,linux-5.0,linux-4.16,linux-4.11,linux-4.9,linux-4.5.1,linux-4.2-rc8,linux-3.19.0,linux-3.15,linux-3.10,linux-3.10.0-123.el7.x86_64")
-
 KERNEL_LIST="
 	'linux-5.6'\n'linux-5.5'\n'linux-5.4'\n'linux-5.3'\n'linux-5.2'\n'linux-5.0'\n'linux-4.20'\n'linux-4.19'\n'linux-4.18'\n'linux-4.17-rc1'\n'linux-4.16'\n'linux-4.15'\n'linux-4.14.3'\n'linux-4.13'\n'linux-4.12-rc6'\n'linux-4.11'\n'linux-4.10-Without-VXLAN'\n'linux-4.10-IRQ_POLL-OFF'\n'linux-4.10'\n'linux-4.9'\n'linux-4.8-rc4'\n'linux-4.7-rc7'\n'linux-4.6.3'\n'linux-4.5.5-300.fc24.x86_64'\n'linux-4.5.1'\n'linux-4.4.73-5-default'\n'linux-4.4.21-69-default'\n'linux-4.4.0-22-generic'\n'linux-4.4'\n'linux-4.3-rc6'\n'linux-4.2.3-300.fc23.x86_64'\n'linux-4.2-rc8'\n'linux-4.1.12-37.5.1.el6uek.x86_64'\n'linux-4.1'\n'linux-4.0.4-301.fc22.x86_64'\n'linux-4.0.1'\n'linux-3.19.0'\n'linux-3.18'\n'linux-3.17.4-301.fc21.x86_64'\n'linux-3.17.1'\n'linux-3.16-rc7'\n'linux-3.15.7-200.fc20.x86_64'\n'linux-3.15'\n'linux-3.14'\n'linux-3.13.1'\n'linux-3.12.49-11-xen'\n'linux-3.12.49-11-default'\n'linux-3.12.28-4-default'\n'linux-3.10'\n'linux-3.10.0-327.el7.x86_64'\n'linux-3.10.0-514.el7.x86_64-ok'\n'linux-3.10.0-229.el7.x86_64'\n'linux-3.10.0-123.el7.x86_64'\n'linux-3.10.0-657.el7.x86_64'\n'linux-3.10.0-693.el7.x86_64'\n'linux-3.10.0-862.el7.x86_64'\n'linux-3.10.0-957.el7.x86_64'
 "
@@ -40,7 +38,6 @@ SELECTED_KERNEL=""
 IGNORE_REGEX=""
 IS_IGNORE=0
 IS_FULL=0
-IS_SHORT=0
 IS_CUSTOM=0
 WITHOUT_ODP=0
 DEBUG_MODE=0
@@ -62,10 +59,16 @@ echo 0
 
 custom_kernels()
 {
-local how_many=3
-local ret_list="$SELECTED_KERNEL"
+local how_many=4
+local ret_list=""
 for ((index=0; index < ${#KERNEL_ARR[@]}; index++));
 do
+	if [ $index -eq 0  ]
+       	then
+	ret_list="${KERNEL_ARR[$index]}"
+	else
+	ret_list="$ret_list,${KERNEL_ARR[$index]}"
+	fi
 	if [ $SELECTED_KERNEL = ${KERNEL_ARR[$index]} ]; then
 		index=$((index+1))		
 		while [ $how_many -gt 0 ] && [ $index -lt ${#KERNEL_ARR[@]} ];
@@ -106,9 +109,6 @@ do
 		;;
 		-f | --full-list)
 		IS_FULL=1
-		;;
-		-s | --short-list)
-		IS_SHORT=1
 		;;
 		-d | --debug-mode)
 		DEBUG_MODE=1
@@ -171,9 +171,8 @@ do
 		-n, --without-odp	ignore odp feature at configure.
 		-k, --kernel-list 	display availanle KERNELS and exit.
 		-l, --module-list	display available MODULEs and exit.
-		-c, --custom 		run job for given kernel plus 3 kernels below. 
+		-c, --custom 		run job for all kernels higher then given kernel plus 3 kernels below. 
 		-f, --full-list		run job for all available kernels [default].
-		-s, --sort-list		run job for small list of kernels [can combine with custom list].
 		-i, --ignore		interactive ignore warning [argument sould be regex syntax, 
 					for permanent ignore add inside script IGNORE_WARNINGS variable].
 		-g, --git-repo		replace default path for git repository job will use as base code.
@@ -204,12 +203,6 @@ then
 fi	
 if [ $WITHOUT_ODP -eq 1 ]; then
 	JOB_PACKAGES="$JOB_PACKAGES,--without-odp"
-fi
-if [ $IS_SHORT -eq 1 ]; then
-	JOB_KERNELS=$SHORT_LIST
-	if [ $IS_CUSTOM -eq 1 ]; then
-		JOB_KERNELS="$JOB_KERNELS,"
-	fi	
 fi
 if [ $IS_CUSTOM -eq 1 ]; then
 		JOB_KERNELS="$JOB_KERNELS$(custom_kernels)"
