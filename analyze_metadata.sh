@@ -29,7 +29,10 @@
 # Author: Shani Shapp shanish@mellanox.com
 #
 #########################################################################
-
+#------------------------------------------------------#
+# usage:
+# run this script inside mlnx-ofa_kernel-4.0 directory #
+#------------------------------------------------------#
 WDIR=$(cd ${0%/*} && pwd | sed -e 's/devtools//')
 OUTPUT_FILE="combined.csv"
 FEATURES_DB="metadata/features_metadata_db.csv"

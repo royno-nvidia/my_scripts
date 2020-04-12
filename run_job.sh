@@ -207,7 +207,7 @@ fi
 if [ $IS_CUSTOM -eq 1 ]; then
 		JOB_KERNELS="$JOB_KERNELS$(custom_kernels)"
 fi
-if [ $IS_FULL -eq 1 ] ||  ([ $IS_SHORT -eq 0 ] && [ $IS_CUSTOM -eq 0 ]); then
+if [ $IS_FULL -eq 1 ] || [ $IS_CUSTOM -eq 0 ]; then
 	JOB_KERNELS=$FULL_LIST
 fi
 echo "start docker build with configuration:" 

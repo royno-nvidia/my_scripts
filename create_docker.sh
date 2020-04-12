@@ -50,9 +50,9 @@ done
 if [ -z "$repo_path" ]
 	then
 	if [[ "$(whoami)" == "valentinef" ]]; then
-	repo_path="/swgwork/valentinef/rebase_5_1_backports/mlnx-ofa_kernel-4.0/"
+	repo_path="/swgwork/valentinef/rebase_5_1_backports/mlnx-ofa_kernel-4.0"
 	elif [[ "$(whoami)" == "royno" ]]; then
-	repo_path="/swgwork/royno/OFED_WORK_AREA/mlnx_ofed_5_1/mlnx-ofa_kernel-4.0/"
+	repo_path="/swgwork/royno/OFED_WORK_AREA/mlnx_ofed_5_1/mlnx-ofa_kernel-4.0"
 	else
 	echo "-E- 'create_docker.sh' must have full path to repository [use {-r | --repository} flag]"
 	exit 1
@@ -79,6 +79,6 @@ else
 		-l, --module-list	display available MODULEs and exit
 "
 	sudo cp /swgwork/royno/OFED/my_scripts/init_docker.sh /tmp/output/
-sudo docker run -it --rm --entrypoint=/bin/bash --tmpfs /build:rw,exec,nosuid,mode=755,size=20G --mount type=tmpfs,target=/tmp/ -v ${repo_path}.git:/git-repo/:ro -v /tmp/output:/output -v /.autodirect/mswg2/work/kernel.org/x86_64/${input_version}/:/tmp/${input_version}/ harbor.mellanox.com/sw-linux-devops/cross_compile:latest 	
+sudo docker run -it --rm --entrypoint=/bin/bash --tmpfs /build:rw,exec,nosuid,mode=755,size=20G --mount type=tmpfs,target=/tmp/ -v ${repo_path}/.git:/git-repo/:ro -v /tmp/output:/output -v /.autodirect/mswg2/work/kernel.org/x86_64/${input_version}/:/tmp/${input_version}/ harbor.mellanox.com/sw-linux-devops/cross_compile:latest 	
 
 fi
