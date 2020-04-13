@@ -8,7 +8,7 @@ script_name="init_docker"
 selected_module=""
 without_odp=0
 module_list="
-'ib_core'\nmlx5_mod
+'ib_core'\n'mlx5_mod'
 "
 #--------------------------MAIN-----------------------#
 MY_BRANCH=$(cat /git-repo/HEAD | sed -e 's/.*heads\///')

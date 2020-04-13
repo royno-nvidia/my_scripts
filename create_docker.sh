@@ -13,7 +13,6 @@ while [ ! -z "$1" ]
 do
 	if [[ $1 == "linux"* ]]; then
 		input_version=$1
-		echo $input_version
 		shift
 		continue
 	fi
@@ -51,8 +50,6 @@ if [ -z "$repo_path" ]
 	then
 	if [[ "$(whoami)" == "valentinef" ]]; then
 	repo_path="/swgwork/valentinef/rebase_5_1_backports/mlnx-ofa_kernel-4.0"
-	elif [[ "$(whoami)" == "royno" ]]; then
-	repo_path="/swgwork/royno/OFED_WORK_AREA/mlnx_ofed_5_1/mlnx-ofa_kernel-4.0"
 	else
 	echo "-E- 'create_docker.sh' must have full path to repository [use {-r | --repository} flag]"
 	exit 1

@@ -3,13 +3,13 @@
 #---------------------USER MUTABLES---------------------------#
 #PREMANENT_USER get username:gerrit_password, F.E "royno:123123"
 #!!please notice!! this user and password are not secured so remember to erase it at the end of use. 
-PERMANENT_USER="valentinef:17Click17"
+PERMANENT_USER=""
 #--------------------------------------------------------------------------------------------------#
 
 #GIT_PATH gets full path to /.git directory you wan't to build from.
 #this will be default path unless you use {-g | --git-repo} flag
 #F.E "/swgwork/valentinef/rebase_5_1_backports/mlnx-ofa_kernel-4.0/.git"
-GIT_PATH='/swgwork/valentinef/rebase_5_1_backports/mlnx-ofa_kernel-4.0/.git'
+GIT_PATH=''
 #----------------------------------------------------------------#
 #IGNORE_WARNINGS get regex arguments, F.E: '"reg1","reg2","reg3"'#
 IGNORE_WARNINGS=".*ibta_vol1_c12.*"
@@ -83,12 +83,6 @@ done
 }
 
 #--------------------MAIN-------------------#
-MY_BRANCH=$(cat ${GIT_PATH}/HEAD | sed -e 's/.*heads\///')
-if [[ $MY_BRANCH == *"backport"* ]]; then
-        echo "-E- your current branch is backport branch,"
-        echo "please checkout another before running this script"
-        exit 1
-fi
 while [ ! -z "$1" ]
 do
 	case "$1" in
@@ -152,10 +146,10 @@ do
 		shift
 		;;
 		-g | --git-repo)
-		if [[ $2 =~ "/mlnx-ofa_kernel-4.0/.git" ]]; then
+		if [[ $2 =~ "/mlnx-ofa_kernel-4.0" ]]; then
 		GIT_PATH=$2
 		else
-		echo "given path with flag {-g | --git-repo} must end with /mlnx-ofa_kernel-4.0/.git" 
+		echo "given path with flag {-g | --git-repo} must end with /mlnx-ofa_kernel-4.0" 
 		exit 1
 		fi
 		shift
@@ -176,7 +170,7 @@ do
 		-i, --ignore		interactive ignore warning [argument sould be regex syntax, 
 					for permanent ignore add inside script IGNORE_WARNINGS variable].
 		-g, --git-repo		replace default path for git repository job will use as base code.
-					this path must point t /mlnx-ofa_kernel-4.0/.git directory.
+					this path must point t /mlnx-ofa_kernel-4.0 directory.
 		-d, --debug-mode	activace 'set -x' will output all script log, still activate job.
 "
 		exit 1
@@ -189,10 +183,22 @@ do
 	esac 
 	shift
 done
-if [[ $GIT_PATH =~ "/mlnx-ofa_kernel-4.0/.git"  ]]; then
+if [ -z "$GIT_PATH" ]
+then
+echo "GIT_PATH is empty, your options:
+fill it inside script for permenant use or give path as argument with {-g | --git-repo}"
+exit 1
+fi
+MY_BRANCH=$(cat ${GIT_PATH}/HEAD | sed -e 's/.*heads\///')
+if [[ $MY_BRANCH == *"backport"* ]]; then
+        echo "-E- your current branch is backport branch,"
+        echo "please checkout another before running this script"
+        exit 1
+fi
+if [[ $GIT_PATH =~ "/mlnx-ofa_kernel-4.0"  ]]; then
 echo "git repository build: ${GIT_PATH}"
 else
-echo "path at GIT_PATH variable must end with /mlnx-ofa_kernel-4.0/.git" 
+echo "path at GIT_PATH variable must end with /mlnx-ofa_kernel-4.0" 
 exit 1
 fi
 [ $DEBUG_MODE -eq 1 ] && set -x #acivate 'set -x' if DEBUG_MODE is active
@@ -218,9 +224,9 @@ fi
 echo "compile over kernels: $JOB_KERNELS"
 if [ ! -z "$PERMANENT_USER" ]
 then
-curl -u ${PERMANENT_USER} "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&GIT_REPOSITORY=${GIT_PATH}&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
+curl -u ${PERMANENT_USER} "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&GIT_REPOSITORY=${GIT_PATH}/.git&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
 else 
-curl -u $(whoami) "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&GIT_REPOSITORY=${GIT_PATH}&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
+curl -u $(whoami) "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&GIT_REPOSITORY=${GIT_PATH}/.git&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
 fi
 echo "job is runnig, see results at link:"
 echo "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/" 
