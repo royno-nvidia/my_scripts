@@ -23,7 +23,7 @@ KERNEL_LIST="
 "
 
 MODULE_LIST="
-	'ib_core'\n''mlx5_mod'
+	'ib_core'\n''mlx5_mod'\n'ib_ipoib'
 "
 
 KERNEL_ARR=("linux-5.6" "linux-5.5" "linux-5.4" "linux-5.3" "linux-5.2" "linux-5.0" "linux-4.20" "linux-4.19" "linux-4.18" "linux-4.17-rc1" "linux-4.16" "linux-4.15" "linux-4.14.3" "linux-4.13" "linux-4.12-rc6" "linux-4.11" "linux-4.10-Without-VXLAN" "linux-4.10-IRQ_POLL-OFF" "linux-4.10" "linux-4.9" "linux-4.8-rc4" "linux-4.7-rc7" "linux-4.6.3" "linux-4.5.5-300.fc24.x86_64" "linux-4.5.1" "linux-4.4.73-5-default" "linux-4.4.21-69-default" "linux-4.4.0-22-generic" "linux-4.4" "linux-4.3-rc6" "linux-4.2.3-300.fc23.x86_64" "linux-4.2-rc8" "linux-4.1.12-37.5.1.el6uek.x86_64" "linux-4.1" "linux-4.0.4-301.fc22.x86_64" "linux-4.0.1" "linux-3.19.0" "linux-3.18" "linux-3.17.4-301.fc21.x86_64" "linux-3.17.1" "linux-3.16-rc7" "linux-3.15.7-200.fc20.x86_64" "linux-3.15" "linux-3.14" "linux-3.13.1" "linux-3.12.49-11-xen" "linux-3.12.49-11-default" "linux-3.12.28-4-default" "linux-3.10" "linux-3.10.0-327.el7.x86_64" "linux-3.10.0-514.el7.x86_64-ok" "linux-3.10.0-229.el7.x86_64" "linux-3.10.0-123.el7.x86_64" "linux-3.10.0-657.el7.x86_64" "linux-3.10.0-693.el7.x86_64" "linux-3.10.0-862.el7.x86_64" "linux-3.10.0-957.el7.x86_64")
@@ -31,6 +31,7 @@ KERNEL_ARR=("linux-5.6" "linux-5.5" "linux-5.4" "linux-5.3" "linux-5.2" "linux-5
 SCRIPT_NAME="run_job"
 IB_CORE_FLAGS="--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-memtrack"
 MLX5_MOD_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod"
+IB_IPOIB_FLAGS="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-ipoib-mod"
 JOB_PACKAGES=""
 JOB_KERNELS=""
 SELECTED_MODULES=""
@@ -128,6 +129,9 @@ do
 			;;
 			mlx5_mod)
 			JOB_PACKAGES=$MLX5_MOD_FLAGS
+			;;
+			ib_ipoib)
+			JOB_PACKAGES=$IB_IPOIB_FLAGS
 			;;
 			*)
 			echo "-E- Unsupported module: $SELECTED_MODULE" >&2
