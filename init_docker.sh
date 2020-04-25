@@ -4,12 +4,16 @@ input_version=$(ls -a /tmp/ | grep linux | sed -e 's/linux-//')
 ib_core_flags="--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-memtrack"
 mlx5_mod_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod"
 ib_ipoib_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-ipoib-mod"
+mlxfw_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-mlxfw-mod"
+rxe_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-rxe-mod"
+fpga_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-innova-flex"
+ipsec_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-innova-flex --with-innova-ipsec"
 my_flags=""
 script_name="init_docker"
 selected_module=""
 without_odp=0
 module_list="
-'ib_core'\n'mlx5_mod'\n'ib_ipoib'
+'ib_core'\n'mlx5_mod'\n'ib_ipoib'\n'mlxfw'\n'rxe'\nfpga\nfpgaWithIspec\n
 "
 #--------------------------MAIN-----------------------#
 MY_BRANCH=$(cat /git-repo/HEAD | sed -e 's/.*heads\///')
@@ -39,12 +43,20 @@ do
 			mlx5_mod)
 			my_flags=$mlx5_mod_flags
 			;;
-			*)
-			echo "-E- Unsupported module: $selected_module" >&2
-			return 1
-			;;
 			ib_ipoib)
 			my_flags=$ib_ipoib_flags
+			;;
+			mlxfw)
+			my_flags=$mlxfw_flags
+			;;
+			rxe)
+			my_flags=$rxe_flags
+			;;
+			fpga)
+			my_flags=$fpga_flags
+			;;
+			fpgaWithipsec)
+			my_flags=$ipsec_flags
 			;;
 			*)
 			echo "-E- Unsupported module: $selected_module" >&2

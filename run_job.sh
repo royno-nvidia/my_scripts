@@ -23,7 +23,7 @@ KERNEL_LIST="
 "
 
 MODULE_LIST="
-	'ib_core'\n''mlx5_mod'\n'ib_ipoib'
+	'ib_core'\n''mlx5_mod'\n'ib_ipoib'\n'mlxfw'\n'rxe'\n'fpga'\n'fpga_with_ipsec'
 "
 
 KERNEL_ARR=("linux-5.6" "linux-5.5" "linux-5.4" "linux-5.3" "linux-5.2" "linux-5.0" "linux-4.20" "linux-4.19" "linux-4.18" "linux-4.17-rc1" "linux-4.16" "linux-4.15" "linux-4.14.3" "linux-4.13" "linux-4.12-rc6" "linux-4.11" "linux-4.10-Without-VXLAN" "linux-4.10-IRQ_POLL-OFF" "linux-4.10" "linux-4.9" "linux-4.8-rc4" "linux-4.7-rc7" "linux-4.6.3" "linux-4.5.5-300.fc24.x86_64" "linux-4.5.1" "linux-4.4.73-5-default" "linux-4.4.21-69-default" "linux-4.4.0-22-generic" "linux-4.4" "linux-4.3-rc6" "linux-4.2.3-300.fc23.x86_64" "linux-4.2-rc8" "linux-4.1.12-37.5.1.el6uek.x86_64" "linux-4.1" "linux-4.0.4-301.fc22.x86_64" "linux-4.0.1" "linux-3.19.0" "linux-3.18" "linux-3.17.4-301.fc21.x86_64" "linux-3.17.1" "linux-3.16-rc7" "linux-3.15.7-200.fc20.x86_64" "linux-3.15" "linux-3.14" "linux-3.13.1" "linux-3.12.49-11-xen" "linux-3.12.49-11-default" "linux-3.12.28-4-default" "linux-3.10" "linux-3.10.0-327.el7.x86_64" "linux-3.10.0-514.el7.x86_64-ok" "linux-3.10.0-229.el7.x86_64" "linux-3.10.0-123.el7.x86_64" "linux-3.10.0-657.el7.x86_64" "linux-3.10.0-693.el7.x86_64" "linux-3.10.0-862.el7.x86_64" "linux-3.10.0-957.el7.x86_64")
@@ -31,7 +31,11 @@ KERNEL_ARR=("linux-5.6" "linux-5.5" "linux-5.4" "linux-5.3" "linux-5.2" "linux-5
 SCRIPT_NAME="run_job"
 IB_CORE_FLAGS="--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-memtrack"
 MLX5_MOD_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod"
-IB_IPOIB_FLAGS="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-ipoib-mod"
+IB_IPOIB_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-ipoib-mod"
+MLXFW_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-mlxfw-mod"
+RXE_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-rxe-mod"
+FPGA_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-innova-flex"
+IPSEC_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-innova-flex,--with-innova-ipsec"
 JOB_PACKAGES=""
 JOB_KERNELS=""
 SELECTED_MODULES=""
@@ -40,6 +44,7 @@ IGNORE_REGEX=""
 IS_IGNORE=0
 IS_FULL=0
 IS_CUSTOM=0
+IS_IPSEC=0
 WITHOUT_ODP=0
 DEBUG_MODE=0
 
@@ -70,11 +75,25 @@ do
 	else
 	ret_list="$ret_list,${KERNEL_ARR[$index]}"
 	fi
+	if [ $IS_IPSEC -eq 1 ]
+	then
+		if [ ${KERNEL_ARR[$index]} = "linux-4.13" ]; then
+			echo $ret_list
+			return
+		fi
+	fi
 	if [ $SELECTED_KERNEL = ${KERNEL_ARR[$index]} ]; then
 		index=$((index+1))		
 		while [ $how_many -gt 0 ] && [ $index -lt ${#KERNEL_ARR[@]} ];
 		do
-			ret_list="$ret_list,${KERNEL_ARR[$index]}"
+			ret_list="$ret_list,${KERNEL_ARR[$index]}"		
+			if [ $IS_IPSEC -eq 1 ]
+			then
+				if [ ${KERNEL_ARR[$index]} = "linux-4.13" ]; then
+					echo $ret_list
+					return
+				fi
+			fi
 			index=$((index+1))
 			how_many=$((how_many-1))
 		done
@@ -132,6 +151,19 @@ do
 			;;
 			ib_ipoib)
 			JOB_PACKAGES=$IB_IPOIB_FLAGS
+			;;
+			mlxfw)
+			JOB_PACKAGES=$MLXFW_FLAGS
+			;;
+			rxe)
+			JOB_PACKAGES=$RXE_FLAGS
+			;;
+			fpga)
+			JOB_PACKAGES=$FPGA_FLAGS
+			;;
+			fpga_with_ipsec)
+			JOB_PACKAGES=$IPSEC_FLAGS
+			IS_IPSEC=1
 			;;
 			*)
 			echo "-E- Unsupported module: $SELECTED_MODULE" >&2
@@ -193,7 +225,7 @@ echo "GIT_PATH is empty, your options:
 fill it inside script for permenant use or give path as argument with {-g | --git-repo}"
 exit 1
 fi
-MY_BRANCH=$(cat ${GIT_PATH}/HEAD | sed -e 's/.*heads\///')
+MY_BRANCH=$(cat ${GIT_PATH}/.git/HEAD | sed -e 's/.*heads\///')
 if [[ $MY_BRANCH == *"backport"* ]]; then
         echo "-E- your current branch is backport branch,"
         echo "please checkout another before running this script"
@@ -218,7 +250,12 @@ if [ $IS_CUSTOM -eq 1 ]; then
 		JOB_KERNELS="$JOB_KERNELS$(custom_kernels)"
 fi
 if [ $IS_FULL -eq 1 ] || [ $IS_CUSTOM -eq 0 ]; then
-	JOB_KERNELS=$FULL_LIST
+	JOB_KERNELS=$FULL_LIST	
+	if [ $IS_IPSEC -eq 1 ]
+	then
+		SELECTED_KERNEL="linux-4.11"
+		JOB_KERNELS="$(custom_kernels)"
+	fi
 fi
 echo "start docker build with configuration:" 
 echo "module check: $SELECTED_MODULE"
