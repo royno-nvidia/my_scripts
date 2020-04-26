@@ -13,7 +13,7 @@ script_name="init_docker"
 selected_module=""
 without_odp=0
 module_list="
-'ib_core'\n'mlx5_mod'\n'ib_ipoib'\n'mlxfw'\n'rxe'\nfpga\nfpgaWithIspec\n
+'ib_core'\n'mlx5_mod'\n'ib_ipoib'\n'mlxfw'\n'rxe'\nfpga\nfpga_with_ipsec\n
 "
 #--------------------------MAIN-----------------------#
 MY_BRANCH=$(cat /git-repo/HEAD | sed -e 's/.*heads\///')
@@ -55,7 +55,7 @@ do
 			fpga)
 			my_flags=$fpga_flags
 			;;
-			fpgaWithipsec)
+			fpga_with_ipsec)
 			my_flags=$ipsec_flags
 			;;
 			*)
@@ -94,7 +94,7 @@ if [ $without_odp -eq 1 ]; then
 	my_flags="$my_flags --without-odp"
 fi
 echo "start docker build"
-/builder/do_build --git /git-repo/ --rev HEAD --kver ${input_version} --ksrc /tmp/linux-${input_version}/ --packages="${my_flags}" 
+/builder/do_build --git /git-repo/ --rev HEAD --kver ${input_version} --ksrc /tmp/linux-${input_version}/ --packages="${my_flags}" --check-warnings 
 cd /build/mlnx_ofed/
 echo "installing vim"
 yum -yq install vim
