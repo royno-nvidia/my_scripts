@@ -5,8 +5,6 @@ ib_core_flags="--with-core-mod --with-user_mad-mod --with-user_access-mod --with
 mlx5_mod_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-mdev-mod"
 ib_ipoib_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-ipoib-mod --with-mdev-mod"
 mlxfw_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-mlxfw-mod --with-mdev-mod"
-nfsrdma_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-nfsrdma-mod --with-mlxfw-mod --with-mdev-mod"
-rxe_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-rxe-mod"
 fpga_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-innova-flex"
 ipsec_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-innova-flex --with-innova-ipsec"
 my_flags=""
@@ -49,12 +47,6 @@ do
 			;;
 			mlxfw)
 			my_flags=$mlxfw_flags
-			;;
-			nfsrdma)
-			my_flags=$nfsrdma_flags
-			;;
-			rxe)
-			my_flags=$rxe_flags
 			;;
 			fpga)
 			my_flags=$fpga_flags

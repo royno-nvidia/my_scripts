@@ -33,7 +33,6 @@ IB_CORE_FLAGS="--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with
 MLX5_MOD_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod"
 IB_IPOIB_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-ipoib-mod"
 MLXFW_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-mlxfw-mod"
-RXE_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-rxe-mod"
 FPGA_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-innova-flex"
 IPSEC_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-innova-flex,--with-innova-ipsec"
 JOB_PACKAGES=""
@@ -154,9 +153,6 @@ do
 			;;
 			mlxfw)
 			JOB_PACKAGES=$MLXFW_FLAGS
-			;;
-			rxe)
-			JOB_PACKAGES=$RXE_FLAGS
 			;;
 			fpga)
 			JOB_PACKAGES=$FPGA_FLAGS
