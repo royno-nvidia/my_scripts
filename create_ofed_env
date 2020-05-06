@@ -30,7 +30,7 @@ do
 		;;
 
 		-h | --help)
-		echo "Usage: ${script_name} [options] MAJOR_MINOR
+		echo "Usage: source {script_name} [options] MAJOR_MINOR
 			
 	use this script to build OFED environment.
 	important: need to source this script for full functionality.
@@ -52,7 +52,7 @@ do
 done
 if [ -z "$ofed_version" ]
 then
-	echo "-E- must get version argument [-v MAJOR_MINOR]"
+	echo "-E- must get version argument [MAJOR_MINOR]"
 	return 1
 fi
 my_user=$(whoami)
@@ -74,7 +74,7 @@ git checkout -b ofed_${ofed_version} origin/mlnx_ofed_${ofed_version}
 echo "inside ${PWD} directory"
 echo "creating links..."
 ln -s ofed_scripts/configure
-ln -s ofed_scripts/makefile 0
+ln -s ofed_scripts/makefile 
 ln -s ofed_scripts/Makefile 
 echo "finished creating ofed environment"
 echo "----------------------------------"
