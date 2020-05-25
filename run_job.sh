@@ -23,7 +23,7 @@ KERNEL_LIST="
 "
 
 MODULE_LIST="
-	'ib_core'\n''mlx5_mod'\n'ib_ipoib'\n'mlxfw'\n'rxe'\n'fpga'\n'fpga_with_ipsec'
+	'ib_core'\n''mlx5_mod'\n'ib_ipoib'\n'mlxfw'\n'rxe'\n'fpga'\n'fpga_with_ipsec'\n'custom'
 "
 
 KERNEL_ARR=("linux-5.6" "linux-5.5" "linux-5.4" "linux-5.3" "linux-5.2" "linux-5.0" "linux-4.20" "linux-4.19" "linux-4.18" "linux-4.17-rc1" "linux-4.16" "linux-4.15" "linux-4.14.3" "linux-4.13" "linux-4.12-rc6" "linux-4.11" "linux-4.10-Without-VXLAN" "linux-4.10-IRQ_POLL-OFF" "linux-4.10" "linux-4.9" "linux-4.8-rc4" "linux-4.7-rc7" "linux-4.6.3" "linux-4.5.5-300.fc24.x86_64" "linux-4.5.1" "linux-4.4.73-5-default" "linux-4.4.21-69-default" "linux-4.4.0-22-generic" "linux-4.4" "linux-4.3-rc6" "linux-4.2.3-300.fc23.x86_64" "linux-4.2-rc8" "linux-4.1.12-37.5.1.el6uek.x86_64" "linux-4.1" "linux-4.0.4-301.fc22.x86_64" "linux-4.0.1" "linux-3.19.0" "linux-3.18" "linux-3.17.4-301.fc21.x86_64" "linux-3.17.1" "linux-3.16-rc7" "linux-3.15.7-200.fc20.x86_64" "linux-3.15" "linux-3.14" "linux-3.13.1" "linux-3.12.49-11-xen" "linux-3.12.49-11-default" "linux-3.12.28-4-default" "linux-3.10" "linux-3.10.0-327.el7.x86_64" "linux-3.10.0-514.el7.x86_64-ok" "linux-3.10.0-229.el7.x86_64" "linux-3.10.0-123.el7.x86_64" "linux-3.10.0-657.el7.x86_64" "linux-3.10.0-693.el7.x86_64" "linux-3.10.0-862.el7.x86_64" "linux-3.10.0-957.el7.x86_64")
@@ -161,6 +161,10 @@ do
 			JOB_PACKAGES=$IPSEC_FLAGS
 			IS_IPSEC=1
 			;;
+			custom)
+			JOB_PACKAGES=$3
+			shift
+			;;
 			*)
 			echo "-E- Unsupported module: $SELECTED_MODULE" >&2
 			exit 1
@@ -194,6 +198,8 @@ do
 
 		-h, --help 		display this help message and exit.
 		-m, --module 		config job for specific module check [default module is ib_core].
+					custom need ',' separator between flags.
+					custom example: '--with-memtrack,--with-mthca-mod,--with-rds-mod,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-ipoib-mod'
 		-n, --without-odp	ignore odp feature at configure.
 		-k, --kernel-list 	display availanle KERNELS and exit.
 		-l, --module-list	display available MODULEs and exit.
@@ -202,7 +208,7 @@ do
 		-i, --ignore		interactive ignore warning [argument sould be regex syntax, 
 					for permanent ignore add inside script IGNORE_WARNINGS variable].
 		-g, --git-repo		replace default path for git repository job will use as base code.
-					this path must point t /mlnx-ofa_kernel-4.0 directory.
+					this path must point to /mlnx-ofa_kernel-4.0/ directory
 		-d, --debug-mode	activace 'set -x' will output all script log, still activate job.
 "
 		exit 1
@@ -255,15 +261,16 @@ if [ $IS_FULL -eq 1 ] || [ $IS_CUSTOM -eq 0 ]; then
 fi
 echo "start docker build with configuration:" 
 echo "module check: $SELECTED_MODULE"
+echo "configure: $JOB_PACKAGES"
 if [ $WITHOUT_ODP -eq 1 ]; then
 	echo "compile without ODP"
 fi
 echo "compile over kernels: $JOB_KERNELS"
 if [ ! -z "$PERMANENT_USER" ]
 then
-curl -u ${PERMANENT_USER} "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&GIT_REPOSITORY=${GIT_PATH}/.git&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
+curl -u ${PERMANENT_USER} "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&GIT_REPOSITORY=${GIT_PATH}.git&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
 else 
-curl -u $(whoami) "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&GIT_REPOSITORY=${GIT_PATH}/.git&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
+curl -u $(whoami) "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&GIT_REPOSITORY=${GIT_PATH}.git&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
 fi
-echo "job is runnig, see results at link:"
+echo "job is running, see results at link:"
 echo "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/" 
