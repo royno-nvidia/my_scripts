@@ -74,6 +74,7 @@ do
 		-h, --help 		display this help message and exit
 		--without-odp		ignore odp feature at configure
 		-m, --module 		config environment for specific module [default module is ib_core]
+					[custom example: -m custom "--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-mdev-mod"]
 		-l, --module-list	display available MODULEs and exit
 "
 		return 1
