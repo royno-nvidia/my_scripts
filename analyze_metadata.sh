@@ -74,6 +74,30 @@ get_type_from_db()
 # main
 #
 
+while [ ! -z "$1" ]
+do
+	case "$1" in
+		-h | --help)
+		echo "Usage: analyze_metadata [-h]
+		
+	use this script to combine all metadata commits in one form.
+	this script need to run before 'slog_filter' [slog_filter uses this script output].	
+	Output: 	'combined.csv'.
+			must run inside mlnx-ofa_kernel-4.0 directory.	
+
+		-h, --help 		display this help message and exit
+"
+		exit 1
+		;;
+		*)
+		echo "-E- Unsupported option: $1" >&2
+		echo "use -h flag to display help menu" 
+		exit 1
+		;;
+	esac
+	shift
+done
+
 echo "sep=;">$OUTPUT_FILE
 echo "change_id; subject; feature; upstream_status; general; type;" >>$OUTPUT_FILE
 RC=0

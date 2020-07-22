@@ -59,6 +59,31 @@ get_line_without_subject()
 # main
 #
 
+while [ ! -z "$1" ]
+do
+	case "$1" in
+		-h | --help)
+		echo "Usage: slog_filter [-h]
+		
+	use this script to get patches table of all OFED patches.
+	precondition: 	run 'analyze_metadata' [this script use 'combined.csv'].
+			must run inside mlnx-ofa_kernel-4.0 directory.	
+	Output: 'filtered.csv'
+	errors: 'filter_errors.txt'
+
+		-h, --help 		display this help message and exit
+"
+		exit 1
+		;;
+		*)
+		echo "-E- Unsupported option: $1" >&2
+		echo "use -h flag to display help menu" 
+		exit 1
+		;;
+	esac
+	shift
+done
+
 echo "sep=;">$OUTPUT_FILE
 echo "commitID; subject; feature; upstream_status; general; type; author; changeID; dup" >>$OUTPUT_FILE
 RC=0
