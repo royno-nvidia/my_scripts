@@ -30,16 +30,6 @@
 #
 #########################################################################
 
-WDIR=$(cd ${0%/*} && pwd | sed -e 's/devtools//')
-OUTPUT_FILE="filtered.csv"
-FEATURES_DB="metadata/features_metadata_db.csv"
-STATUS_DB="NA \
-		   ignore \
-		   in_progress \
-		   sent
-		   accepted \
-		   rejected \
-"
 
 get_feature_from_csv()
 {
@@ -87,15 +77,59 @@ get_line_without_subject()
 }
 get_count()
 {       
-        local line=$1; shift
+        local feature=$1; shift
 
-	echo $( grep -o "$line" ./filtered.csv | wc -l)        
+	echo $( grep -o "$feature" ./filtered.csv | wc -l)        
+}
+get_NA()
+{       
+        local feature=$1; shift
+
+	echo $( grep  "$feature" ./filtered.csv | grep "NA" | wc -l)        
+}
+get_in_progress()
+{       
+        local feature=$1; shift
+
+	echo $( grep "$feature" ./filtered.csv |  grep "in_progress" | wc -l)        
+}
+get_ignore()
+{       
+        local feature=$1; shift
+
+	echo $( grep "$feature" ./filtered.csv |  grep "ignore" | wc -l)        
+}
+
+get_accepted()
+{       
+        local feature=$1; shift
+
+	echo $( grep "$feature" ./filtered.csv |  grep "accepted" | wc -l)        
+}
+
+get_status()
+{       
+        local feature=$1; shift
+	local type=$1; shift
+
+	echo $( grep "$feature" ./filtered.csv |  grep "$type" | wc -l)        
 }
 
 ##################################################################
 #
 # main
 #
+
+WDIR=$(cd ${0%/*} && pwd | sed -e 's/devtools//')
+OUTPUT_FILE="feature_statistics.csv"
+FEATURES_DB="metadata/features_metadata_db.csv"
+STATUS_DB="NA \
+		   ignore \
+		   in_progress \
+		   sent
+		   accepted \
+		   rejected \
+"
 
 while [ ! -z "$1" ]
 do
@@ -105,7 +139,7 @@ do
 			
 	use this script to check the numbers of commits per feature in ./metadata/features_metadata_db.csv.
 	precondition: 	must run 'slog_filter.sh' before running this script.
-	Output: 	on screen - list of all features and commits count per each.
+	Output: 	feature_statistics.csv - list of all features and commits count per each.
 			in file './zero_commit_feature.txt' - feature without any commits.
 		-h, --help 		display this help message and exit
 "
@@ -120,6 +154,8 @@ do
 	shift
 done
 
+echo "sep=;">$OUTPUT_FILE
+echo "feature; overall; NA; in_progress; ignore; rejected; accepted;" >> $OUTPUT_FILE
 RC=0
 echo "Scanning files..."
 file_path="./metadata/features_metadata_db.csv"
@@ -129,16 +165,25 @@ zero_list="./zero_commit_feature.txt"
 echo "" > $zero_list
 	while read -r line
 	do
-	
-		feature=$(get_feature_from_csv "$line")		
+		feature=$(get_feature_from_csv "$line")
+		if [ "X${feature}" == "Xsep=;" ]; then
+			continue
+		fi		
+		feature=$(echo "$feature"| cut -d";" -f2)
 		count=$(get_count "$feature")
-		echo "$feature" "$count"
+		NA=$(get_status "$feature" "NA")
+		progress=$(get_status "$feature" "in_progress")
+		ignore=$(get_status "$feature" "ignore")
+		accepted=$(get_status "$feature" "accepted")
+		rejected=$(get_status "$feature" "rejected")
+		echo "$feature; $count; $NA; $progress; $ignore; $rejected; $accepted;" >> $OUTPUT_FILE
 		if [ ${count} -eq 0 ]; then
 			echo "${feature}" >> $zero_list
 		fi
 	done < $file_path
 echo
 echo "--------------------------------------------------------------"
+echo "see results in 'feature_statistics.csv'"
 echo "check for features with no commit at 'zero_commit_feature.txt'"
 echo "--------------------------------------------------------------"
 echo
