@@ -1,0 +1,9 @@
+#!/bin/bash
+
+vi_cmd="vim"
+input="$1"
+file="$(echo $input | cut -d':' -f1)"
+line="$(echo $input | cut -d':' -f2)"
+exec \
+$vi_cmd $file +"$line"
+

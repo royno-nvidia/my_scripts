@@ -1,0 +1,12 @@
+#!/bin/bash
+
+
+input=$1
+if [ "X$input"=="X" ]; then
+	echo "no line for conigure entered"
+fi
+output=$(echo $input | sed 's/--package=//g')
+echo ----------------------------
+echo "your configure command is:"
+echo "'./configure -j20 $output'"
+echo ----------------------------
