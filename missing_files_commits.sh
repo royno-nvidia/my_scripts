@@ -18,7 +18,8 @@
 
 NEW_VER_PATH=$1
 OLD_VER_PATH=$PWD
-
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+BASE_CODE_COMMIT=$(git log --reverse --no-color --oneline | grep "Set base code" | cut -d" " -f1)
 if [ "X$1" == "X" ]; then
 	echo "-E- scripts must get path to new OFED repository"
 	exit 1
@@ -27,15 +28,17 @@ echo "script is running..."
 echo
 echo "search for file who missing in new version"
 echo "------------------------------------------"
+git checkout $BASE_CODE_COMMIT
 MISS_FILES=""
 MISS_FILES="$MISS_FILES $(diff -crw $OLD_VER_PATH/drivers/ $NEW_VER_PATH/drivers/ | grep "^Only in $OLD_VER_PATH" | sed -r -e 's/^.*Only in //' -e 's@: @/@' | sed 's/.*drivers/drivers/')"
 MISS_FILES="$MISS_FILES $(diff -crw $OLD_VER_PATH/include/ $NEW_VER_PATH/include/ | grep "^Only in $OLD_VER_PATH" | sed -r -e 's/^.*Only in //' -e 's@: @/@' | sed 's/.*include/include/')"
 MISS_FILES="$MISS_FILES $(diff -crw $OLD_VER_PATH/net/ $NEW_VER_PATH/net/ | grep "^Only in $OLD_VER_PATH" | sed -r -e 's/^.*Only in //' -e 's@: @/@' | sed 's/.*net/net/')"
+git checkout $CURRENT_BRANCH
 echo
 
 for file in $MISS_FILES
 do
-	slog_file=$(git log --oneline $file)
+	slog_file=$(git log --oneline -- $file)
 	if [[ $slog_file == *"Set base code"* ]];
 	then
 		echo "File '$file':"
