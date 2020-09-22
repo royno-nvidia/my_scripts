@@ -31,7 +31,7 @@ do
 		echo "module list:"
 		echo "------------"
 		echo -e $module_list
-		return 1	
+		return 1
 		;;
 		-m | --module)
 		selected_module="$2"
@@ -55,7 +55,7 @@ do
 			my_flags=$ipsec_flags
 			;;
 			custom)
-			my_flags=$3
+			my_flags=$(echo $3 | sed 's/--package=//g')
 			shift
 			;;
 			*)
@@ -67,21 +67,21 @@ do
 		;;
 		-h | --help)
 		echo "Usage: ${script_name} [options]
-			
+
 	use this script to config docker environment.
 	important: need to source this script for full functionality.
 
 		-h, --help 		display this help message and exit
 		--without-odp		ignore odp feature at configure
 		-m, --module 		config environment for specific module [default module is ib_core]
-					[custom example: -m custom "--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-mdev-mod"]
+					[custom example: -m custom "--package=--with-core-mod --package=--with-user_mad-mod --package=--with-user_access-mod --package=--with-addr_trans-mod --package=--with-memtrack"]
 		-l, --module-list	display available MODULEs and exit
 "
 		return 1
 		;;
 		*)
 		echo "-E- Unsupported option: $1" >&2
-		echo "use -h flag to display help menu" 
+		echo "use -h flag to display help menu"
 		return 1
 		;;
 	esac
@@ -90,17 +90,17 @@ done
 if [ -z "$selected_module" ]
 then
 	my_flags=$ib_core_flags
-fi	
+fi
 if [ $without_odp -eq 1 ]; then
 	my_flags="$my_flags --without-odp"
 fi
 echo "compile flags: $my_flags"
 echo "start docker build"
-/builder/do_build --git /git-repo/ --rev HEAD --kver ${input_version} --ksrc /tmp/linux-${input_version}/ --packages="${my_flags}" --check-warnings 
+/builder/do_build --git /git-repo/ --rev HEAD --kver ${input_version} --ksrc /tmp/linux-${input_version}/ --package="${my_flags}" --check-warnings
 cd /build/mlnx_ofed/
 echo "installing vim"
 yum -yq install vim
-git config --global user.email "aaa@gmail.com" 
+git config --global user.email "aaa@gmail.com"
 git add -u
 git commit -s -m "Temp commit"
 echo "inside $(pwd)"
