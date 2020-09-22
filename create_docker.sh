@@ -2,7 +2,8 @@
 #------------------SCRIPT VARIABLES---------------#
 input_version=""
 init_path="/tmp/output/"
-repo_path=""
+#repo_path assigned the default repo
+repo_path="/swgwork/valentinef/OFED_REBASE_AREA/rebase_5_2/master/mlnx-ofa_kernel-4.0"
 script_name="create_docker"
 container_name="$(whoami)"
 kernel_list="
@@ -53,13 +54,9 @@ do
 	shift
 done
 if [ -z "$repo_path" ]
-	then
-	if [[ "$(whoami)" == "valentinef" ]]; then
-	repo_path="/swgwork/valentinef/rebase_5_1_backports/mlnx-ofa_kernel-4.0"
-	else
+then
 	echo "-E- 'create_docker.sh' must have full path to repository [use {-r | --repository} flag]"
 	exit 1
-	fi
 fi
 if [ -z "$input_version" ]
 then
