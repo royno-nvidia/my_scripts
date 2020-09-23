@@ -9,7 +9,7 @@ PERMANENT_USER=""
 #GIT_PATH gets full path to /.git directory you wan't to build from.
 #this will be default path unless you use {-g | --git-repo} flag
 #F.E "/swgwork/valentinef/rebase_5_1_backports/mlnx-ofa_kernel-4.0/.git"
-GIT_PATH=''
+GIT_PATH='/swgwork/valentinef/OFED_REBASE_AREA/rebase_5_2/master/mlnx-ofa_kernel-4.0/'
 #----------------------------------------------------------------#
 #IGNORE_WARNINGS get regex arguments, F.E: '"reg1","reg2","reg3"'#
 IGNORE_WARNINGS=""
@@ -234,7 +234,7 @@ if [[ $MY_BRANCH == *"backport"* ]]; then
         echo "please checkout another before running this script"
         exit 1
 fi
-if [[ $GIT_PATH =~ "/mlnx-ofa_kernel-4.0"  ]]; then
+if [[ $GIT_PATH =~ "/mlnx-ofa_kernel-4.0/"  ]]; then
 echo "git repository build: ${GIT_PATH}"
 else
 echo "path at GIT_PATH variable must end with /mlnx-ofa_kernel-4.0" 
