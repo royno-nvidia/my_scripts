@@ -9,25 +9,24 @@ PERMANENT_USER=""
 #GIT_PATH gets full path to /.git directory you wan't to build from.
 #this will be default path unless you use {-g | --git-repo} flag
 #F.E "/swgwork/valentinef/rebase_5_1_backports/mlnx-ofa_kernel-4.0/.git"
-GIT_PATH='/swgwork/valentinef/OFED_REBASE_AREA/rebase_5_2/master/mlnx-ofa_kernel-4.0/'
+GIT_PATH='/swgwork/valentinef/OFED_REBASE_AREA/rebase_5_2/master2/mlnx-ofa_kernel-4.0/'
 #----------------------------------------------------------------#
 #IGNORE_WARNINGS get regex arguments, F.E: '"reg1","reg2","reg3"'#
-IGNORE_WARNINGS=""
-#".*ibta_vol1_c12.*"
+IGNORE_WARNINGS=".*ibta_vol1_c12.*"
 #----------------------------------------------------------------#
 
 #---------------------SCRIPT VARIABLES---------------------------#
-FULL_LIST=("linux-5.9-rc2,linux-5.8,linux-5.7,linux-5.6,linux-5.5,linux-5.4,linux-5.3.7-301.fc31.x86_64,linux-5.3,linux-5.2,linux-5.0,linux-4.20,linux-4.19,linux-4.18,linux-4.18.0-193.el8.x86_64,linux-4.18.0-147.el8.x86_64,linux-4.18.0-ngn,linux-4.17-rc1,linux-4.16,linux-4.15,linux-4.14.3,linux-4.13,linux-4.12-rc6,linux-4.11,linux-4.10-Without-VXLAN,linux-4.10-IRQ_POLL-OFF,linux-4.10,linux-4.9,linux-4.8-rc4,linux-4.7-rc7,linux-4.6.3,linux-4.5.1,linux-4.4.73-5-default,linux-4.4.21-69-default,linux-4.4.0-22-generic,linux-4.4,linux-4.3-rc6,linux-4.2-rc8,linux-4.1.12-37.5.1.el6uek.x86_64,linux-4.1,linux-4.0.1,linux-3.19.0,linux-3.18,linux-3.17.1,linux-3.16-rc7,linux-3.15,linux-3.14,linux-3.13.1,linux-3.10.0-327.el7.x86_64,linux-3.10.0-514.el7.x86_64-ok,linux-3.10.0-657.el7.x86_64,linux-3.10.0-693.el7.x86_64,linux-3.10.0-862.el7.x86_64,linux-3.10.0-957.el7.x86_64")
+FULL_LIST=("linux-5.9-rc2,linux-5.8,linux-5.7,linux-5.6,linux-5.5,linux-5.4,linux-5.3.7-301.fc31.x86_64,linux-5.3,linux-5.2,linux-5.0,linux-4.20,linux-4.19,linux-4.18.0-235.el8.x86_64,linux-4.18,linux-4.18.0-193.el8.x86_64,linux-4.18.0-147.el8.x86_64,linux-4.18.0-ngn,linux-4.17-rc1,linux-4.16,linux-4.15,linux-4.14.3,linux-4.13,linux-4.12-rc6,linux-4.11,linux-4.10-Without-VXLAN,linux-4.10-IRQ_POLL-OFF,linux-4.10,linux-4.9,linux-4.8-rc4,linux-4.7-rc7,linux-4.6.3,linux-4.5.1,linux-4.4.73-5-default,linux-4.4.21-69-default,linux-4.4.0-22-generic,linux-4.4,linux-4.3-rc6,linux-4.2-rc8,linux-4.1.12-37.5.1.el6uek.x86_64,linux-4.1,linux-4.0.1,linux-3.19.0,linux-3.18,linux-3.17.1,linux-3.16-rc7,linux-3.15,linux-3.14,linux-3.13.1,linux-3.10.0-327.el7.x86_64,linux-3.10.0-514.el7.x86_64-ok,linux-3.10.0-693.el7.x86_64,linux-3.10.0-862.el7.x86_64,linux-3.10.0-957.el7.x86_64,linux-3.10.0-1149.el7.x86_64")
 
 KERNEL_LIST="
-	'linux-5.9-rc2'\n'linux-5.8'\n'linux-5.7'\n'linux-5.6'\n'linux-5.5'\n'linux-5.4'\n'linux-5.3'\n'linux-5.3.7-301.fc31.x86_64'\n'linux-5.2'\n'linux-5.0'\n'linux-4.20'\n'linux-4.19'\n'linux-4.18.0-193.el8.x86_64'\n'linux-4.18.0-147.el8.x86_64'\n'linux-4.18.0-ngn'\n'linux-4.18'\n'linux-4.17-rc1'\n'linux-4.16'\n'linux-4.15'\n'linux-4.14.3'\n'linux-4.13'\n'linux-4.12-rc6'\n'linux-4.11'\n'linux-4.10-Without-VXLAN'\n'linux-4.10-IRQ_POLL-OFF'\n'linux-4.10'\n'linux-4.9'\n'linux-4.8-rc4'\n'linux-4.7-rc7'\n'linux-4.6.3'\n'linux-4.5.1'\n'linux-4.4.73-5-default'\n'linux-4.4.21-69-default'\n'linux-4.4.0-22-generic'\n'linux-4.4'\n'linux-4.3-rc6'\n'linux-4.2-rc8'\n'linux-4.1.12-37.5.1.el6uek.x86_64'\n'linux-4.1'\n'linux-4.0.1'\n'linux-3.19.0'\n'linux-3.18'\n'linux-3.17.1'\n'linux-3.16-rc7'\n'linux-3.15'\n'linux-3.14'\n'linux-3.13.1'\n'linux-3.10.0-327.el7.x86_64'\n'linux-3.10.0-514.el7.x86_64-ok'\n'linux-3.10.0-657.el7.x86_64'\n'linux-3.10.0-693.el7.x86_64'\n'linux-3.10.0-862.el7.x86_64'\n'linux-3.10.0-957.el7.x86_64'
+	'linux-5.9-rc2'\n'linux-5.8'\n'linux-5.7'\n'linux-5.6'\n'linux-5.5'\n'linux-5.4'\n'linux-5.3'\n'linux-5.3.7-301.fc31.x86_64'\n'linux-5.2'\n'linux-5.0'\n'linux-4.20'\n'linux-4.19'\n'linux-4.18.0-235.el8.x86_64'\n'linux-4.18.0-193.el8.x86_64'\n'linux-4.18.0-147.el8.x86_64'\n'linux-4.18.0-ngn'\n'linux-4.18'\n'linux-4.17-rc1'\n'linux-4.16'\n'linux-4.15'\n'linux-4.14.3'\n'linux-4.13'\n'linux-4.12-rc6'\n'linux-4.11'\n'linux-4.10-Without-VXLAN'\n'linux-4.10-IRQ_POLL-OFF'\n'linux-4.10'\n'linux-4.9'\n'linux-4.8-rc4'\n'linux-4.7-rc7'\n'linux-4.6.3'\n'linux-4.5.1'\n'linux-4.4.73-5-default'\n'linux-4.4.21-69-default'\n'linux-4.4.0-22-generic'\n'linux-4.4'\n'linux-4.3-rc6'\n'linux-4.2-rc8'\n'linux-4.1.12-37.5.1.el6uek.x86_64'\n'linux-4.1'\n'linux-4.0.1'\n'linux-3.19.0'\n'linux-3.18'\n'linux-3.17.1'\n'linux-3.16-rc7'\n'linux-3.15'\n'linux-3.14'\n'linux-3.13.1'\n'linux-3.10.0-327.el7.x86_64'\n'linux-3.10.0-514.el7.x86_64-ok'\n'linux-3.10.0-693.el7.x86_64'\n'linux-3.10.0-862.el7.x86_64'\n'linux-3.10.0-957.el7.x86_64'\n'linux-3.10.0-1149.el7.x86_64'
 "
 
 MODULE_LIST="
 	'ib_core'\n''mlx5_mod'\n'ib_ipoib'\n'mlxfw'\n'rxe'\n'fpga'\n'fpga_with_ipsec'\n'custom'
 "
 
-KERNEL_ARR=("linux-5.9-rc2" "linux-5.8" "linux-5.7" "linux-5.6" "linux-5.5" "linux-5.4" "linux-5.3.7-301.fc31.x86_64" "linux-5.3" "linux-5.2" "linux-5.0" "linux-4.20" "linux-4.19" "linux-4.18.0-193.el8.x86_64" "linux-4.18.0-147.el8.x86_64" "linux-4.18.0-ngn" "linux-4.18" "linux-4.17-rc1" "linux-4.16" "linux-4.15" "linux-4.14.3" "linux-4.13" "linux-4.12-rc6" "linux-4.11" "linux-4.10-Without-VXLAN" "linux-4.10-IRQ_POLL-OFF" "linux-4.10" "linux-4.9" "linux-4.8-rc4" "linux-4.7-rc7" "linux-4.6.3" "linux-4.5.1" "linux-4.4.73-5-default" "linux-4.4.21-69-default" "linux-4.4.0-22-generic" "linux-4.4" "linux-4.3-rc6" "linux-4.2-rc8" "linux-4.1.12-37.5.1.el6uek.x86_64" "linux-4.1" "linux-4.0.1" "linux-3.19.0" "linux-3.18" "linux-3.17.1" "linux-3.16-rc7" "linux-3.15" "linux-3.14" "linux-3.13.1" "linux-3.10.0-327.el7.x86_64" "linux-3.10.0-514.el7.x86_64-ok" "linux-3.10.0-657.el7.x86_64" "linux-3.10.0-693.el7.x86_64" "linux-3.10.0-862.el7.x86_64" "linux-3.10.0-957.el7.x86_64")
+KERNEL_ARR=("linux-5.9-rc2" "linux-5.8" "linux-5.7" "linux-5.6" "linux-5.5" "linux-5.4" "linux-5.3.7-301.fc31.x86_64" "linux-5.3" "linux-5.2" "linux-5.0" "linux-4.20" "linux-4.19" "linux-4.18.0-235.el8.x86_64" "linux-4.18.0-193.el8.x86_64" "linux-4.18.0-147.el8.x86_64" "linux-4.18.0-ngn" "linux-4.18" "linux-4.17-rc1" "linux-4.16" "linux-4.15" "linux-4.14.3" "linux-4.13" "linux-4.12-rc6" "linux-4.11" "linux-4.10-Without-VXLAN" "linux-4.10-IRQ_POLL-OFF" "linux-4.10" "linux-4.9" "linux-4.8-rc4" "linux-4.7-rc7" "linux-4.6.3" "linux-4.5.1" "linux-4.4.73-5-default" "linux-4.4.21-69-default" "linux-4.4.0-22-generic" "linux-4.4" "linux-4.3-rc6" "linux-4.2-rc8" "linux-4.1.12-37.5.1.el6uek.x86_64" "linux-4.1" "linux-4.0.1" "linux-3.19.0" "linux-3.18" "linux-3.17.1" "linux-3.16-rc7" "linux-3.15" "linux-3.14" "linux-3.13.1" "linux-3.10.0-327.el7.x86_64" "linux-3.10.0-514.el7.x86_64-ok" "linux-3.10.0-693.el7.x86_64" "linux-3.10.0-862.el7.x86_64" "linux-3.10.0-957.el7.x86_64" "linux-3.10.0-1149.el7.x86_64")
 
 SCRIPT_NAME="run_job"
 IB_CORE_FLAGS="--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-memtrack"
@@ -237,7 +236,7 @@ fi
 if [[ $GIT_PATH =~ "/mlnx-ofa_kernel-4.0/"  ]]; then
 echo "git repository build: ${GIT_PATH}"
 else
-echo "path at GIT_PATH variable must end with /mlnx-ofa_kernel-4.0" 
+echo "path at GIT_PATH variable must end with /mlnx-ofa_kernel-4.0/" 
 exit 1
 fi
 [ $DEBUG_MODE -eq 1 ] && set -x #acivate 'set -x' if DEBUG_MODE is active
