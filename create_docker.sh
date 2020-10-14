@@ -1,5 +1,6 @@
 #!/bin/bash
 #------------------SCRIPT VARIABLES---------------#
+compiler_ver="rhel7"
 input_version=""
 init_path="/tmp/output/"
 #repo_path assigned the default repo
@@ -78,7 +79,16 @@ else
 		-m, --module 		config environment for specific module [default module is ib_core]
 		-l, --module-list	display available MODULEs and exit
 "
-	sudo cp /swgwork/royno/OFED/my_scripts/init_docker.sh /tmp/output/
-sudo docker run -it --rm --entrypoint=/bin/bash --tmpfs /build:rw,exec,nosuid,mode=755,size=20G --name=${container_name} --mount type=tmpfs,target=/tmp/ -v ${repo_path}/.git:/git-repo/:ro -v /tmp/output:/output -v /.autodirect/mswg2/work/kernel.org/x86_64/${input_version}/:/tmp/${input_version}/ harbor.mellanox.com/sw-linux-devops/cross_compile:latest 	
+major=$(echo $input_version | sed -e 's/linux-//g' | cut -d"." -f1)
+minor=$(echo $input_version | sed -e 's/linux-//g' | sed -e 's/-.*//g' |cut -d"." -f2)
+if [ $major -ge 5 ]; then
+	if [ $minor -ge 8 ] || [ $major -gt 5 ]; then
+		compiler_ver="rhel8"
+		#should open when resolved, for now not working
+		#compiler_ver="rhel8"
+	fi
+fi
+sudo cp /swgwork/royno/OFED/my_scripts/init_docker.sh /tmp/output/
+sudo docker run -it --rm --entrypoint=/bin/bash --tmpfs /build:rw,exec,nosuid,mode=755,size=20G --name=${container_name} --mount type=tmpfs,target=/tmp/ -v ${repo_path}/.git:/git-repo/:ro -v /tmp/output:/output -v /.autodirect/mswg2/work/kernel.org/x86_64/${input_version}/:/tmp/${input_version}/ harbor.mellanox.com/sw-linux-devops/cross_compile:${compiler_ver}
 
 fi

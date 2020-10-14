@@ -11,6 +11,7 @@ my_flags=""
 script_name="init_docker"
 selected_module=""
 without_odp=0
+build_dir="do_build"
 module_list="
 'ib_core'\n'mlx5_mod'\n'ib_ipoib'\n'mlxfw'\n'rxe'\nfpga\nfpga_with_ipsec\n'custom'\n
 "
@@ -96,7 +97,14 @@ if [ $without_odp -eq 1 ]; then
 fi
 echo "compile flags: $my_flags"
 echo "start docker build"
-/builder/do_build --git /git-repo/ --rev HEAD --kver ${input_version} --ksrc /tmp/linux-${input_version}/ --package="${my_flags}" --check-warnings
+major=$(echo $input_version | sed -e 's/linux-//g' | cut -d"." -f1)
+minor=$(echo $input_version | sed -e 's/linux-//g' | sed -e 's/-.*//g' |cut -d"." -f2)
+if [ $major -ge 5 ]; then
+	if [ $minor -ge 8 ] || [ $major -gt 5 ]; then
+		build_dir="do_build3"
+	fi
+fi
+/builder/${build_dir} --git /git-repo/ --rev HEAD --kver ${input_version} --ksrc /tmp/linux-${input_version}/ --package="${my_flags}" --check-warnings
 cd /build/mlnx_ofed/
 echo "installing vim"
 yum -yq install vim
