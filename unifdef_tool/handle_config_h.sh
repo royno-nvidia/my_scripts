@@ -12,8 +12,7 @@ echo "Processing $OLD_CONFIG ..."
 sed -i 's/\/\*\s*\(#undef .*\) \*\//\1/g' ${defsfile}
 sed -i '/\/\*/d' ${defsfile}
 sed -i '/\*\//d' ${defsfile}
-sed -i '/#ifndef LINUX_BACKPORT/d' ${defsfile}
-sed -i '/#define LINUX_BACKPORT/d' ${defsfile}
 sed -i '/#endif/d' ${defsfile}
+sed -i '/^\s*$/d' ${defsfile}
 
 echo "New defs file ready at: '${defsfile}'"

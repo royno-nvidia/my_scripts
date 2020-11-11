@@ -1,19 +1,20 @@
 #!/bin/bash
 
-OLD_CONFIG=$1; shift
+OLD_CONFIGURE=$1; shift
 defsfile=/tmp/defs_file.h
+MANIP=$OLD_CONFIGURE.tmp
+FINAL=/tmp/final_config.h
 
-if [ ! -f "${OLD_CONFIG}" ]; then
+if [ ! -f "${OLD_CONFIGURE}" ]; then
 	echo "-E- File entered not exist" >&2
 	exit 1
 fi
-echo "Processing $OLD_CONFIG ..."
-/bin/cp -f $OLD_CONFIG  ${defsfile}
-sed -i 's/\/\*\s*\(#undef .*\) \*\//\1/g' ${defsfile}
-sed -i '/\/\*/d' ${defsfile}
-sed -i '/\*\//d' ${defsfile}
-sed -i '/#ifndef LINUX_BACKPORT/d' ${defsfile}
-sed -i '/#define LINUX_BACKPORT/d' ${defsfile}
-sed -i '/#endif/d' ${defsfile}
+echo "Processing $OLD_CONFIGURE ..."
 
-echo "New defs file ready at: '${defsfile}'"
+sed -i ':x /\\$/ { N; s/\\\n//g ; bx }'  $OLD_CONFIGURE
+
+
+cat $defsfile > $FINAL
+unifdef -f $defsfile $OLD_CONFIGURE >> $FINAL
+
+echo "Final config file ready at: '${FINAL}'"

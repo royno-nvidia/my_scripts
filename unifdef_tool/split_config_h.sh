@@ -1,8 +1,8 @@
 #!/bin/bash
 
 COMPAT_FILE=$1
-FOR_SED="xx00"
-FOR_UNIFDEF="xx01"
+FOR_SED="splited00"
+FOR_UNIFDEF="splited02"
 CONFIG_PATH=/tmp/config.h
 CONFIGURE_PATH=/tmp/configure.ac
 echo "splitting file.."
@@ -19,10 +19,10 @@ if !(grep -q "split here" $COMPAT_FILE); then
 	exit 1
 fi
 
-csplit -q $COMPAT_FILE '/* split here for unifdef */'
+csplit -q --suppress-matched $COMPAT_FILE '/* unifdef tool split here */' -f splited '{*}'
 mv $FOR_SED $CONFIG_PATH
 mv $FOR_UNIFDEF $CONFIGURE_PATH
-
+rm -rf splited0*
 echo "create '$CONFIG_PATH'"
 echo "create '$CONFIGURE_PATH'"
 
