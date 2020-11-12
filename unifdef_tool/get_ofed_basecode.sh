@@ -45,7 +45,7 @@ if [ "X" == "X$ofa" ]; then
 fi
 if [ ! -d $NEW_DIR ];then
 	echo "Copy src to $NEW_DIR"
-	/bin/cp -rf $ofa_dir $NEW_DIR
+	sudo /bin/cp -rf $ofa_dir $NEW_DIR
 fi	
 cd $NEW_DIR
 echo "Inside $PWD"
@@ -83,6 +83,11 @@ if [ ! -f "${CONFIG}" ]; then
 	return 1
 fi
 echo "start cleaning files.."
+/swgwork/royno/OFED/my_scripts/unifdef_tool/unifdef_installer.sh
+if [ $? -ne 0 ];then
+	echo "Script failed.."
+	return 1
+fi
 for i in $(find ${PWD} \( -name '*.c' -o \
 			  -name '*.h' -o \
 			  -name 'Kbuild' -o \
@@ -93,6 +98,8 @@ do
 	mv -f ${i}.tmp $i
 done
 
+echo
 echo "Script ended succsfully!"
 echo "Look for config.h at '$CONFIG'"
-echo "OFED plain basecode in '$NEW_DIR'"
+echo "OFED plain basecode directory: '$NEW_DIR'"
+echo "Original OFED directory: '$ofa_dir'"
