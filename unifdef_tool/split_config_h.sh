@@ -2,9 +2,10 @@
 
 COMPAT_FILE=$1
 FOR_SED="splited00"
-FOR_UNIFDEF="splited02"
+FOR_UNIFDEF="splited01"
 CONFIG_PATH=/tmp/config.h
 CONFIGURE_PATH=/tmp/configure.ac
+SPLIT_LINE="Make sure LINUX_BACKPORT macro is defined for all external users"
 echo "splitting file.."
 if [ ! -f $COMPAT_FILE ]; then
 	echo "-E- File entered not exist"
@@ -14,13 +15,13 @@ if [ ! "X$(basename $COMPAT_FILE)" == "Xconfig.h" ]; then
 	echo "-E- Argument for script must be config.h"
 	exit 1
 fi
-if !(grep -q "split here" $COMPAT_FILE); then
+if !(grep -q "$SPLIT_LINE" $COMPAT_FILE); then
 	echo "-E- Could not found where to split, Aborting.."
-	echo "compat/config.h must have '/* unifdef tool split here */'"
+	echo "current split at '${SPLIT_LINE}' pattern"
 	exit 1
 fi
 
-csplit -q --suppress-matched $COMPAT_FILE '/* unifdef tool split here */' -f splited '{*}'
+csplit -q --suppress-matched $COMPAT_FILE "/.*${SPLIT_LINE}.*/" -f splited '{*}'
 mv -f $FOR_SED $CONFIG_PATH
 if [ $? -ne 0 ]; then
 	echo "-E- command 'mv -f $FOR_SED $CONFIG_PATH' failed"
