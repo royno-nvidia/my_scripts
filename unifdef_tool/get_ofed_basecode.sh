@@ -33,29 +33,50 @@ ofa=$(\ls /usr/src | grep mlnx-ofa_kernel)
 ofa_dir=/usr/src/$ofa/
 CONFIG=/tmp/final_config.h
 NEW_DIR="/var/tmp/${ofa}_basecode"
-
+if [[ "$(basename -- "$0")" == "get_ofed_basecode.sh" ]]; then
+	    echo "Don't run $0, source it" >&2
+	        exit 1
+	fi
 echo "script running.."
 echo $ofa
 if [ "X" == "X$ofa" ]; then
 	echo "-E- No Kernel src found, Aborting.." >&2
 	return 1
 fi
-
-echo "Copy src to $NEW_DIR"
-/bin/cp -rf $ofa_dir $NEW_DIR
+if [ ! -d $NEW_DIR ];then
+	echo "Copy src to $NEW_DIR"
+	/bin/cp -rf $ofa_dir $NEW_DIR
+fi	
 cd $NEW_DIR
 echo "Inside $PWD"
 if [ ! -f "compat/config.h" ]; then
 	echo "Configuring ofed envaironment"
 	sudo /swgwork/royno/OFED/my_scripts/configure_ofed_env
+	if [ $? -ne 0 ];then
+		echo
+		echo "Script failed.."
+		return 1
+	fi
 fi
 sudo chown -f ${whoami} -R  $NEW_DIR
 sudo chown -f ${whoami} compat/config.h
 echo "Configure Done"
 echo "Create config file"
 /swgwork/royno/OFED/my_scripts/unifdef_tool/split_config_h.sh $PWD/compat/config.h
+if [ $? -ne 0 ];then
+	echo "Script failed.."
+	return 1
+fi
 /swgwork/royno/OFED/my_scripts/unifdef_tool/handle_config_h.sh /tmp/config.h
+if [ $? -ne 0 ];then
+	echo "Script failed.."
+	return 1
+fi
 /swgwork/royno/OFED/my_scripts/unifdef_tool/handle_configure_ac.sh /tmp/configure.ac
+if [ $? -ne 0 ];then
+	echo "Script failed.."
+	return 1
+fi
 
 if [ ! -f "${CONFIG}" ]; then
 	echo "-E- Config file does not exist at ${CONFIG}" >&2
@@ -71,3 +92,7 @@ do
 	sudo unifdef -f ${CONFIG} ${i} -o ${i}.tmp -b
 	mv -f ${i}.tmp $i
 done
+
+echo "Script ended succsfully!"
+echo "Look for config.h at '$CONFIG'"
+echo "OFED plain basecode in '$NEW_DIR'"
