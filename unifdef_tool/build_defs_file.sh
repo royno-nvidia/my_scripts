@@ -13,6 +13,11 @@ FINAL=/tmp/final_defs.h
 echo "$FINAL"
 sudo rm -rf $CONFIG_PATH $CONFIGURE_PATH $DEFSFILE $AUTOCONF_PATH
 echo "start build compat file '$FINAL' for unifdef use"
+/swgwork/royno/OFED/my_scripts/unifdef_tool/unifdef_installer.sh
+if [ $? -ne 0 ];then
+	echo "Script failed.."
+	exit 1
+fi
 cp $COMPAT_FILE /tmp/$(date +%s)_$(basename $COMPAT_FILE)
 /.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/split_config_h.sh $COMPAT_FILE
 /.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/handle_config_h.sh $CONFIG_PATH

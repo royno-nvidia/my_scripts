@@ -64,11 +64,6 @@ fi
 cd $NEW_DIR
 echo "Inside $PWD"
 echo "Configure Done"
-/swgwork/royno/OFED/my_scripts/unifdef_tool/unifdef_installer.sh
-if [ $? -ne 0 ];then
-	echo "Script failed.."
-	exit 1
-fi
 echo "Create config file"
 /.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/build_defs_file.sh $NEW_DIR
 if [ ! -f "${CONFIG}" ]; then
