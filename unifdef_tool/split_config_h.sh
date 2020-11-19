@@ -34,6 +34,4 @@ rm -rf splited0*
 if [ $? -ne 0 ]; then
 	echo "-E- command 'rm -rf splited0*' failed"
 fi
-echo "create '$CONFIG_PATH'"
-echo "create '$CONFIGURE_PATH'"
 

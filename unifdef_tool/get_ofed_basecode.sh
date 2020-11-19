@@ -27,27 +27,23 @@
 #
 # Author: Roy Novich <royno@nvidia.com>
 #
-# IMPORTANT: This script must be sourced to get full functionality
+# IMPORTANT: This script must be run as root
 
 ofa=$(\ls /usr/src | grep mlnx-ofa_kernel)
 ofa_dir=/usr/src/$ofa/
-CONFIG=/tmp/final_config.h
 NEW_DIR="/var/tmp/${ofa}_basecode"
-if [[ "$(basename -- "$0")" == "get_ofed_basecode.sh" ]]; then
-	    echo "Don't run $0, source it" >&2
-	        exit 1
-	fi
+CONFIG=/tmp/final_defs.h 
+if [ ! "$USER" == "root" ]; then
+	echo "This script must be run as root"
+	exit 1
+fi
 echo "script running.."
 echo $ofa
 if [ "X" == "X$ofa" ]; then
 	echo "-E- No Kernel src found, Aborting.." >&2
-	return 1
+	exit 1
 fi
-if [ ! -d $NEW_DIR ];then
-	echo "Copy src to $NEW_DIR"
-	sudo /bin/cp -rf $ofa_dir $NEW_DIR
-fi	
-cd $NEW_DIR
+cd $ofa_dir
 echo "Inside $PWD"
 if [ ! -f "compat/config.h" ]; then
 	echo "Configuring ofed envaironment"
@@ -55,51 +51,46 @@ if [ ! -f "compat/config.h" ]; then
 	if [ $? -ne 0 ];then
 		echo
 		echo "Script failed.."
-		return 1
+		exit 1
 	fi
 fi
-sudo chown -f ${whoami} -R  $NEW_DIR
-sudo chown -f ${whoami} compat/config.h
+if [ ! -d $NEW_DIR ];then
+	echo "Copy src to $NEW_DIR"
+	sudo /bin/cp -rf $ofa_dir $NEW_DIR
+else
+	echo "Directory '$NEW_DIR' exists, Aborting.."
+	exit 1
+fi	
+cd $NEW_DIR
+echo "Inside $PWD"
 echo "Configure Done"
-echo "Create config file"
-/swgwork/royno/OFED/my_scripts/unifdef_tool/split_config_h.sh $PWD/compat/config.h
-if [ $? -ne 0 ];then
-	echo "Script failed.."
-	return 1
-fi
-/swgwork/royno/OFED/my_scripts/unifdef_tool/handle_config_h.sh /tmp/config.h
-if [ $? -ne 0 ];then
-	echo "Script failed.."
-	return 1
-fi
-/swgwork/royno/OFED/my_scripts/unifdef_tool/handle_configure_ac.sh /tmp/configure.ac
-if [ $? -ne 0 ];then
-	echo "Script failed.."
-	return 1
-fi
-
-if [ ! -f "${CONFIG}" ]; then
-	echo "-E- Config file does not exist at ${CONFIG}" >&2
-	return 1
-fi
-echo "start cleaning files.."
 /swgwork/royno/OFED/my_scripts/unifdef_tool/unifdef_installer.sh
 if [ $? -ne 0 ];then
 	echo "Script failed.."
-	return 1
+	exit 1
 fi
+echo "Create config file"
+/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/build_defs_file.sh $NEW_DIR
+if [ ! -f "${CONFIG}" ]; then
+	echo "-E- Config file does not exist at '${CONFIG}'" >&2
+	exit 1
+fi
+echo "start cleaning files.."
 for i in $(find ${PWD} \( -name '*.c' -o \
 			  -name '*.h' -o \
 			  -name 'Kbuild' -o \
 			  -name 'Makefile' \) )
 do
 	echo "cleaning ${i} ..."
-	sudo unifdef -f ${CONFIG} ${i} -o ${i}.tmp -b
+	unifdef -f ${CONFIG} ${i} -o ${i}.tmp
 	mv -f ${i}.tmp $i
 done
 
 echo
 echo "Script ended succsfully!"
-echo "Look for config.h at '$CONFIG'"
+echo "---------------------------------------------------------------------------"
 echo "OFED plain basecode directory: '$NEW_DIR'"
 echo "Original OFED directory: '$ofa_dir'"
+echo "Look for config.h at '$CONFIG'"
+echo "---------------------------------------------------------------------------"
+
