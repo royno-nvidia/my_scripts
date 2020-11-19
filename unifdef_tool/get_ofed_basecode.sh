@@ -28,21 +28,73 @@
 # Author: Roy Novich <royno@nvidia.com>
 #
 # IMPORTANT: This script must be run as root
-
+SCRIPT_NAME=$(basename "$0")
 ofa=$(\ls /usr/src | grep mlnx-ofa_kernel)
 ofa_dir=/usr/src/$ofa/
+CUSTOM_OFA_DIR=
+CUSTOM_CONFIG=
 NEW_DIR="/var/tmp/${ofa}_basecode"
 CONFIG=/tmp/final_defs.h 
 if [ ! "$USER" == "root" ]; then
-	echo "This script must be run as root"
+	echo "$USER, please run this script as root"
+	echo "Aborting.."
 	exit 1
+fi
+while [ ! -z "$1" ]
+do
+	case "$1" in
+		-d | --directory)
+		CUSTOM_OFA_DIR=$2
+		if [ ! -d $CUSTOM_OFA_DIR ]; then
+			echo "Path '$CUSTOM_OFA_DIR' is not a directory,"
+			echo "Please make sure to give mlnx_ofed directory path as argument."
+			echo "Aborting.."
+			exit 1
+		fi
+		shift;
+		;;
+		-c | --config-file)
+		CUSTOM_CONFIG=$2
+		if [ ! -f $CUSTOM_CONFIG ]; then
+			echo "Path '$CUSTOM_CONFIG' is not a file,"
+			echo "Please make sure to give config.h file path as argument."
+			echo "Aborting.."
+			exit 1
+		fi
+		shift;
+		;;
+		-h | --help)
+		echo "Usage: ${SCRIPT_NAME} [options]
+			
+	use this script to get OFED code without #ifdef.
+
+		-h, --help 		Display this help message and exit.
+		-d, --directory		Path to specific OFED directory,
+					default is '$ofa_dir'
+		-c, --config-file	Path to specific ready config file,
+					script will not create new one.
+"
+		exit 1
+		;;
+		*)
+		echo "-E- Unsupported option: $1" >&2
+		echo "use -h flag to display help menu" 
+		exit 1
+		;;
+	esac 
+	shift
+done
+if [ ! -z "$CUSTOM_OFA_DIR" ];then
+	ofa_dir=$CUSTOM_OFA_DIR
+	dir_owner=$(stat -c '%U' $ofa_dir)
+	NEW_DIR="/var/tmp/$(basename $ofa_dir)_basecode_$(date +%Y-%m-%d_%H-%M)"
+else
+	if [ -z "$ofa" ]; then
+		echo "-E- No Kernel src found, Aborting.." >&2
+		exit 1
+	fi
 fi
 echo "script running.."
-echo $ofa
-if [ "X" == "X$ofa" ]; then
-	echo "-E- No Kernel src found, Aborting.." >&2
-	exit 1
-fi
 cd $ofa_dir
 echo "Inside $PWD"
 if [ ! -f "compat/config.h" ]; then
@@ -64,8 +116,13 @@ fi
 cd $NEW_DIR
 echo "Inside $PWD"
 echo "Configure Done"
-echo "Create config file"
-/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/build_defs_file.sh $NEW_DIR
+if [ -z "$CUSTOM_CONFIG" ];then
+	echo "Create config file"
+	/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/build_defs_file.sh $NEW_DIR
+else
+	/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/unifdef_installer.sh
+	CONFIG=$CUSTOM_CONFIG
+fi
 if [ ! -f "${CONFIG}" ]; then
 	echo "-E- Config file does not exist at '${CONFIG}'" >&2
 	exit 1
