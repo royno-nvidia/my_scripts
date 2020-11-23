@@ -27,7 +27,7 @@
 #
 # Author: Roy Novich <royno@nvidia.com>
 # 
-# Script usage: ./build_defs_file.sh <ofed_dir_path>
+# Script usage: ./build_defs_file.sh <ofed_dir_path> <output_filename(optional)>
 # This script uses to build config file unifdef can handle from given OFED dir
 
 WORK_DIR=$1
@@ -37,10 +37,11 @@ CONFIG_PATH=/tmp/config.h
 CONFIGURE_PATH=/tmp/configure.ac
 DEFSFILE=/tmp/defs_file.h
 AUTOCONF_PATH=/tmp/final_autoconf.h
-FINAL=/tmp/final_defs.h
+FINAL=$2
+if [ -z "$FINAL" ];then
+	FINAL=/tmp/final_defs.h
+fi
 
-
-echo "$FINAL"
 sudo rm -rf $CONFIG_PATH $CONFIGURE_PATH $DEFSFILE $AUTOCONF_PATH
 echo "start build compat file '$FINAL' for unifdef use"
 /swgwork/royno/OFED/my_scripts/unifdef_tool/unifdef_installer.sh

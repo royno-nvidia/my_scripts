@@ -34,7 +34,7 @@ ofa_dir=/usr/src/$ofa/
 CUSTOM_OFA_DIR=
 CUSTOM_CONFIG=
 NEW_DIR="/var/tmp/${ofa}_basecode"
-CONFIG=/tmp/final_defs.h 
+CONFIG=/tmp/$(date +%s)_final_defs.h 
 if [ ! "$USER" == "root" ]; then
 	echo "$USER, please run this script as root"
 	echo "Aborting.."
@@ -118,7 +118,7 @@ echo "Inside $PWD"
 echo "Configure Done"
 if [ -z "$CUSTOM_CONFIG" ];then
 	echo "Create config file"
-	/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/build_defs_file.sh $NEW_DIR
+	/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/build_defs_file.sh $NEW_DIR $CONFIG
 else
 	/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/unifdef_installer.sh
 	CONFIG=$CUSTOM_CONFIG
