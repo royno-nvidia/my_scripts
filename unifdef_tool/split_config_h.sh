@@ -11,10 +11,6 @@ if [ ! -f $COMPAT_FILE ]; then
 	echo "-E- File entered not exist"
 	exit 1
 fi
-if [ ! "X$(basename $COMPAT_FILE)" == "Xconfig.h" ]; then
-	echo "-E- Argument for script must be config.h"
-	exit 1
-fi
 if !(grep -q "$SPLIT_LINE" $COMPAT_FILE); then
 	echo "-E- Could not found where to split, Aborting.."
 	echo "current split at '${SPLIT_LINE}' pattern"

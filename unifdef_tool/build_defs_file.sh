@@ -29,14 +29,24 @@
 # 
 # Script usage: ./build_defs_file.sh <ofed_dir_path> <output_filename(optional)>
 # This script uses to build config file unifdef can handle from given OFED dir
+if [ -d "$1" ]; then
+	IS_DIR=1
+	WORK_DIR=$1
+	COMPAT_FILE=$WORK_DIR/compat/config.h
+	AUTOCONF_FILE=$WORK_DIR/include/generated/autoconf.h
+	AUTOCONF_PATH=/tmp/final_autoconf.h
+else
+	if [ -f "$1" ]; then
+	IS_DIR=0
+	COMPAT_FILE=$1
+	else
+		echo "-E- Argument 1 for script must be directory/file path"
+	fi
 
-WORK_DIR=$1
-COMPAT_FILE=$WORK_DIR/compat/config.h
-AUTOCONF_FILE=$WORK_DIR/include/generated/autoconf.h
+fi
 CONFIG_PATH=/tmp/config.h
 CONFIGURE_PATH=/tmp/configure.ac
 DEFSFILE=/tmp/defs_file.h
-AUTOCONF_PATH=/tmp/final_autoconf.h
 FINAL=$2
 if [ -z "$FINAL" ];then
 	FINAL=/tmp/final_defs.h
@@ -53,7 +63,9 @@ cp $COMPAT_FILE /tmp/$(date +%s)_$(basename $COMPAT_FILE)
 /.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/split_config_h.sh $COMPAT_FILE
 /.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/handle_config_h.sh $CONFIG_PATH
 /.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/handle_configure_ac.sh $CONFIGURE_PATH
-/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/handle_autoconf_h.sh $AUTOCONF_FILE
+if [ $IS_DIR -eq 1 ];then
+	/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/handle_autoconf_h.sh $AUTOCONF_FILE
+fi
 
 echo "/*-----------------------*/" > $FINAL
 echo "/* config.h defs section */" >> $FINAL
@@ -63,10 +75,12 @@ echo "/*---------------------------*/" >> $FINAL
 echo "/* configure.ac defs section */" >> $FINAL
 echo "/*---------------------------*/" >> $FINAL
 unifdef -f $DEFSFILE $CONFIGURE_PATH >> $FINAL
-echo "/*-------------------------*/" >> $FINAL
-echo "/* autoconf.h defs section */" >> $FINAL
-echo "/*-------------------------*/" >> $FINAL
-cat $AUTOCONF_PATH >> $FINAL
+if [ $IS_DIR -eq 1 ];then
+	echo "/*-------------------------*/" >> $FINAL
+	echo "/* autoconf.h defs section */" >> $FINAL
+	echo "/*-------------------------*/" >> $FINAL
+	cat $AUTOCONF_PATH >> $FINAL
+fi
 
 rm -rf $CONFIG_PATH $CONFIGURE_PATH $DEFSFILE $AUTOCONF_PATH
 echo "'${FINAL}' created"
