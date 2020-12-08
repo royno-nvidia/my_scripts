@@ -33,6 +33,11 @@
 FILENAME=$1
 CONFIG1=$2
 CONFIG2=$3
+echo "1= $CONFIG1 2= $CONFIG2"
+if [[ -z "$CONFIG1" || -z "$CONFIG2" ]];then
+	echo "-E- Script must get 2 config files"
+	exit 1
+fi
 POST_FIX="${FILENAME#*.}"
 UNIF1_NAME=$(echo $(basename $CONFIG1) | sed -e 's/\./_/g')_$(basename $FILENAME)
 UNIF2_NAME=$(echo $(basename $CONFIG2) | sed -e 's/\./_/g')_$(basename $FILENAME)
