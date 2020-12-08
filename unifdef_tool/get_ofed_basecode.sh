@@ -29,17 +29,12 @@
 #
 # IMPORTANT: This script must be run as root
 SCRIPT_NAME=$(basename "$0")
-ofa=$(\ls /usr/src | grep mlnx-ofa_kernel)
+ofa=$(\ls /usr/src | grep mlnx-ofa_kernel-)
 ofa_dir=/usr/src/$ofa/
 CUSTOM_OFA_DIR=
 CUSTOM_CONFIG=
-NEW_DIR="/var/tmp/${ofa}_basecode"
+BCK_DIR="/var/tmp/${ofa}_backup"
 CONFIG=/tmp/$(date +%s)_final_defs.h 
-if [ ! "$USER" == "root" ]; then
-	echo "$USER, please run this script as root"
-	echo "Aborting.."
-	exit 1
-fi
 while [ ! -z "$1" ]
 do
 	case "$1" in
@@ -87,14 +82,32 @@ done
 if [ ! -z "$CUSTOM_OFA_DIR" ];then
 	ofa_dir=$CUSTOM_OFA_DIR
 	dir_owner=$(stat -c '%U' $ofa_dir)
-	NEW_DIR="/var/tmp/$(basename $ofa_dir)_basecode_$(date +%Y-%m-%d_%H-%M)"
+	if [ ! "$USER" == "$dir_owner" ]; then
+		echo "$USER, please run this script as given dir owner: $dir_owner"
+		echo "Aborting.."
+		exit 1
+	fi
+	BCK_DIR="/var/tmp/$(basename $ofa_dir)_$(date +%Y-%m-%d_%H-%M)_backup"
+
 else
+	if [ ! "$USER" == "root" ]; then
+		echo "$USER, please run this script as root"
+		echo "Aborting.."
+		exit 1
+	fi
 	if [ -z "$ofa" ]; then
 		echo "-E- No Kernel src found, Aborting.." >&2
 		exit 1
 	fi
 fi
 echo "script running.."
+if [ ! -d $BCK_DIR ];then
+	echo "Copy backup to $BCK_DIR"
+	sudo /bin/cp -rf $ofa_dir $BCK_DIR
+else
+	echo "Directory '$BCK_DIR' exists, Aborting.."
+	exit 1
+fi	
 cd $ofa_dir
 echo "Inside $PWD"
 if [ ! -f "compat/config.h" ]; then
@@ -106,19 +119,10 @@ if [ ! -f "compat/config.h" ]; then
 		exit 1
 	fi
 fi
-if [ ! -d $NEW_DIR ];then
-	echo "Copy src to $NEW_DIR"
-	sudo /bin/cp -rf $ofa_dir $NEW_DIR
-else
-	echo "Directory '$NEW_DIR' exists, Aborting.."
-	exit 1
-fi	
-cd $NEW_DIR
-echo "Inside $PWD"
 echo "Configure Done"
 if [ -z "$CUSTOM_CONFIG" ];then
 	echo "Create config file"
-	/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/build_defs_file.sh $NEW_DIR $CONFIG
+	/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/build_defs_file.sh $ofa_dir $CONFIG
 else
 	/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/unifdef_installer.sh
 	CONFIG=$CUSTOM_CONFIG
@@ -128,7 +132,7 @@ if [ ! -f "${CONFIG}" ]; then
 	exit 1
 fi
 echo "start cleaning files.."
-for i in $(find ${PWD} \( -name '*.c' -o \
+for i in $(find ${ofa_dir} \( -name '*.c' -o \
 			  -name '*.h' -o \
 			  -name 'Kbuild' -o \
 			  -name 'Makefile' \) )
@@ -141,8 +145,8 @@ done
 echo
 echo "Script ended succsfully!"
 echo "---------------------------------------------------------------------------"
-echo "OFED plain basecode directory: '$NEW_DIR'"
-echo "Original OFED directory: '$ofa_dir'"
-echo "Look for config.h at '$CONFIG'"
+echo "OFED plain basecode directory: '$ofa_dir'"
+echo "Original OFED directory: '$BCK_DIR'"
+echo "Config used: '$CONFIG'"
 echo "---------------------------------------------------------------------------"
 
