@@ -28,6 +28,8 @@
 # Author: Roy Novich <royno@nvidia.com>
 #
 # IMPORTANT: This script must be run as root
+
+SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 SCRIPT_NAME=$(basename "$0")
 ofa=$(\ls /usr/src | grep mlnx-ofa_kernel-)
 ofa_dir=/usr/src/$ofa/
@@ -122,9 +124,9 @@ fi
 echo "Configure Done"
 if [ -z "$CUSTOM_CONFIG" ];then
 	echo "Create config file"
-	/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/build_defs_file.sh $ofa_dir $CONFIG
+	$SCRIPTS_DIR/build_defs_file.sh $ofa_dir $CONFIG
 else
-	/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/unifdef_installer.sh
+	$SCRIPTS_DIR/unifdef_installer.sh
 	CONFIG=$CUSTOM_CONFIG
 fi
 if [ ! -f "${CONFIG}" ]; then

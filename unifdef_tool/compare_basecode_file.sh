@@ -30,6 +30,7 @@
 # Script usage: ./compare_basecode_file.sh <file_name> <config1> <config2>
 # This script uses to compare OFED specific file base code as compiled in 2 different kernels
 
+SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 FILENAME=$1
 CONFIG1=$2
 CONFIG2=$3
@@ -47,12 +48,12 @@ UNIF1=/tmp/$UNIF1_NAME
 UNIF2=/tmp/$UNIF2_NAME
 
 if !(grep -q "defs section" $CONFIG1);then
-	/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/build_defs_file.sh $CONFIG1 $PROC1
+	$SCRIPTS_DIR/build_defs_file.sh $CONFIG1 $PROC1
 else
 	cat $CONFIG1 > $PROC1
 fi
 if !(grep -q "defs section" $CONFIG2);then
-	/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/build_defs_file.sh $CONFIG2 $PROC2
+	$SCRIPTS_DIR/build_defs_file.sh $CONFIG2 $PROC2
 else
 	cat $CONFIG2 > $PROC2
 fi

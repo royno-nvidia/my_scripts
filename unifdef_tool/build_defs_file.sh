@@ -44,6 +44,7 @@ else
 	fi
 
 fi
+SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 CONFIG_PATH=/tmp/config.h
 CONFIGURE_PATH=/tmp/configure.ac
 DEFSFILE=/tmp/defs_file.h
@@ -60,11 +61,11 @@ if [ $? -ne 0 ];then
 	exit 1
 fi
 cp $COMPAT_FILE /tmp/$(date +%s)_$(basename $COMPAT_FILE)
-/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/split_config_h.sh $COMPAT_FILE
-/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/handle_config_h.sh $CONFIG_PATH
-/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/handle_configure_ac.sh $CONFIGURE_PATH
+$SCRIPTS_DIR/split_config_h.sh $COMPAT_FILE
+$SCRIPTS_DIR/handle_config_h.sh $CONFIG_PATH
+$SCRIPTS_DIR/handle_configure_ac.sh $CONFIGURE_PATH
 if [ $IS_DIR -eq 1 ];then
-	/.autodirect/swgwork/royno/OFED/my_scripts/unifdef_tool/handle_autoconf_h.sh $AUTOCONF_FILE
+	$SCRIPTS_DIR/handle_autoconf_h.sh $AUTOCONF_FILE
 fi
 
 echo "/*-----------------------*/" > $FINAL
