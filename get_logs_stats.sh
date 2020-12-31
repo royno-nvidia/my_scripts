@@ -38,73 +38,11 @@ get_feature_from_csv()
 	echo $(echo "$line" | sed -r -e 's/.*name=\s*/;/' -e 's/;\s*type=.*/;/')
 }
 
-clear_line()
-{
-	local line=$1
-
-	echo $(echo "$line" | sed -e 's/\s*Change-Id=//' -e 's/\s*subject=//' -e \
-                              's/\s*feature=//' -e 's/\s*upstream_status=//' -e 's/\s*general=//')
-}
-
-get_type_from_db()
-{
-	local feature=$1; shift
-	line=`grep "$feature" metadata/features_metadata_db.csv`
-	if [ "$line" = "" ]; then
-		return
-	fi
-	echo $(echo "$line"|sed -r -e 's/.*;\s*type=\s*//' -e 's/;\s*upstream.*//')
-}
-
-get_subject_from_csv()
-{
-        local line=$1; shift
-
-        echo $(echo "$line" | sed -r -e 's/^[^;]*;//' -e 's/\(.*\);.*//'| cut -f1 -d";")
-}
-
-get_line_without_id()
-{
-	local line=$1; shift
-
-	echo $(echo "$line" |  cut -d" " -f2- )
-}
-
-get_line_without_subject()
-{
-	local line=$1; shift
-	echo $(echo "$line" | cut -d" " -f1)
-}
 get_count()
 {       
         local feature=$1; shift
 
-	echo $( grep -o "$feature" ./filtered.csv | wc -l)        
-}
-get_NA()
-{       
-        local feature=$1; shift
-
-	echo $( grep  "$feature" ./filtered.csv | grep "NA" | wc -l)        
-}
-get_in_progress()
-{       
-        local feature=$1; shift
-
-	echo $( grep "$feature" ./filtered.csv |  grep "in_progress" | wc -l)        
-}
-get_ignore()
-{       
-        local feature=$1; shift
-
-	echo $( grep "$feature" ./filtered.csv |  grep "ignore" | wc -l)        
-}
-
-get_accepted()
-{       
-        local feature=$1; shift
-
-	echo $( grep "$feature" ./filtered.csv |  grep "accepted" | wc -l)        
+	echo $( grep -ow "$feature" ./filtered.csv | wc -l)        
 }
 
 get_status()
@@ -112,7 +50,7 @@ get_status()
         local feature=$1; shift
 	local type=$1; shift
 
-	echo $( grep "$feature" ./filtered.csv |  grep "$type" | wc -l)        
+	echo $( grep -w "$feature" ./filtered.csv |  grep "$type" | wc -l)        
 }
 
 ##################################################################
@@ -126,7 +64,6 @@ FEATURES_DB="metadata/features_metadata_db.csv"
 STATUS_DB="NA \
 		   ignore \
 		   in_progress \
-		   sent
 		   accepted \
 		   rejected \
 "
