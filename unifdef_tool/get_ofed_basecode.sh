@@ -90,6 +90,7 @@ if [ ! -z "$CUSTOM_OFA_DIR" ];then
 		exit 1
 	fi
 	BCK_DIR="/var/tmp/$(basename $ofa_dir)_$(date +%Y-%m-%d_%H-%M)_backup"
+	IS_GIT="$(git rev-parse --is-inside-work-tree 2>/dev/null)"
 
 else
 	if [ ! "$USER" == "root" ]; then
@@ -103,13 +104,15 @@ else
 	fi
 fi
 echo "script running.."
-if [ ! -d $BCK_DIR ];then
-	echo "Copy backup to $BCK_DIR"
-	sudo /bin/cp -rf $ofa_dir $BCK_DIR
-else
-	echo "Directory '$BCK_DIR' exists, Aborting.."
-	exit 1
-fi	
+if [ ! "$IS_GIT" ];then
+	if [ ! -d $BCK_DIR ];then
+		echo "Copy backup to $BCK_DIR"
+		sudo /bin/cp -rf $ofa_dir $BCK_DIR
+	else
+		echo "Directory '$BCK_DIR' exists, Aborting.."
+		exit 1
+	fi
+fi
 cd $ofa_dir
 echo "Inside $PWD"
 if [ ! -f "compat/config.h" ]; then
@@ -143,12 +146,17 @@ do
 	unifdef -f ${CONFIG} ${i} -o ${i}.tmp
 	mv -f ${i}.tmp $i
 done
-
+if [ "$IS_GIT" ];then
+	git add -u
+	git commit -s -m "BASECODE: remove #ifdef from code"
+fi
 echo
 echo "Script ended succsfully!"
 echo "---------------------------------------------------------------------------"
 echo "OFED plain basecode directory: '$ofa_dir'"
+if [ ! "$IS_GIT" ];then
 echo "Original OFED directory: '$BCK_DIR'"
+fi
 echo "Config used: '$CONFIG'"
 echo "---------------------------------------------------------------------------"
 
