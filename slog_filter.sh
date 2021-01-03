@@ -54,6 +54,11 @@ get_line_without_subject()
 	echo $(echo "$line" | cut -d" " -f1)
 }
 
+get_all_but_CID()
+{
+	local line=$1; shift
+	echo $(echo "$line" | sed -r -e 's/^[^;]*;//')
+}
 ##################################################################
 #
 # main
@@ -64,10 +69,10 @@ do
 	case "$1" in
 		-h | --help)
 		echo "Usage: slog_filter [-h]
-		
+
 	use this script to get patches table of all OFED patches.
 	precondition: 	run 'analyze_metadata' [this script use 'combined.csv'].
-			must run inside mlnx-ofa_kernel-4.0 directory.	
+			must run inside mlnx-ofa_kernel-4.0 directory.
 	Output: 'filtered.csv'
 	errors: 'filter_errors.txt'
 
@@ -77,7 +82,7 @@ do
 		;;
 		*)
 		echo "-E- Unsupported option: $1" >&2
-		echo "use -h flag to display help menu" 
+		echo "use -h flag to display help menu"
 		exit 1
 		;;
 	esac
@@ -99,27 +104,27 @@ git log --oneline --color=never > ${log_path}
 		commitID=$(get_line_without_subject "$line")
 		changeID=$(git show ${commitID} | grep Change-Id: | head -1| cut -d":" -f2)
 		if [ -z $"$changeID" ]; then
-			echo "no change-id found for commit: "${commitID}"" >> $err_path	
+			echo "no change-id found for commit: "${commitID}"" >> $err_path
 			continue
 		fi
 		line_at_combined=$(grep ${changeID} ${file_path})
 		subject=$(get_subject_from_csv "${line_at_combined}")
 		if [ -z "$subject" ]; then
-			echo "no subject found for commit: "${commitID}"" >> $err_path	
+			echo "no subject found for commit: "${commitID}"" >> $err_path
 			continue
 		fi
-		patch_data="${line_at_combined:42}"
+		patch_data="$(get_all_but_CID "${line_at_combined}")"
 		copies=$(grep "${subject}" "${file_path}" | wc -l)
 		if [ $copies -gt 1 ]; then
 			echo "${commitID}; ${patch_data} ${changeID}; dup subject">>$OUTPUT_FILE
 		else
 			echo "${commitID}; ${patch_data} ${changeID}">>$OUTPUT_FILE
-		fi	
+		fi
 
 	done < $log_path
 	echo "script is done,"
 	echo "result at 'filtered.csv"
-	if [ -s "$err_path" ]; then 
+	if [ -s "$err_path" ]; then
 		echo "please check errors at 'filter_errors.txt'"
 	else
 		rm -f "$err_path"

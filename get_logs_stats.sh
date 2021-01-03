@@ -39,18 +39,18 @@ get_feature_from_csv()
 }
 
 get_count()
-{       
+{
         local feature=$1; shift
 
-	echo $( grep -ow "$feature" ./filtered.csv | wc -l)        
+	echo $(cut ./filtered.csv -d";" -f 3,4 | grep -w "$feature" | wc -l)
 }
 
 get_status()
-{       
+{
         local feature=$1; shift
 	local type=$1; shift
 
-	echo $( grep -w "$feature" ./filtered.csv |  grep "$type" | wc -l)        
+	echo $(cut ./filtered.csv -d";" -f 3,4 | grep -w "$feature" | grep "$type" | wc -l)
 }
 
 ##################################################################
@@ -73,7 +73,7 @@ do
 	case "$1" in
 		-h | --help)
 		echo "Usage: get_log_stats [-h]
-			
+
 	use this script to check the numbers of commits per feature in ./metadata/features_metadata_db.csv.
 	precondition: 	must run 'slog_filter.sh' before running this script.
 	Output: 	feature_statistics.csv - list of all features and commits count per each.
@@ -84,7 +84,7 @@ do
 		;;
 		*)
 		echo "-E- Unsupported option: $1" >&2
-		echo "use -h flag to display help menu" 
+		echo "use -h flag to display help menu"
 		exit 1
 		;;
 	esac
@@ -105,7 +105,7 @@ echo "" > $zero_list
 		feature=$(get_feature_from_csv "$line")
 		if [ "X${feature}" == "Xsep=;" ]; then
 			continue
-		fi		
+		fi
 		feature=$(echo "$feature"| cut -d";" -f2)
 		count=$(get_count "$feature")
 		NA=$(get_status "$feature" "NA")
