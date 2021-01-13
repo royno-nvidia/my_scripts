@@ -117,7 +117,7 @@ cd $ofa_dir
 echo "Inside $PWD"
 if [ ! -f "compat/config.h" ]; then
 	echo "Configuring ofed envaironment"
-	sudo /swgwork/royno/OFED/my_scripts/configure_ofed_env
+	/swgwork/royno/OFED/my_scripts/configure_ofed_env
 	if [ $? -ne 0 ];then
 		echo
 		echo "Script failed.."
