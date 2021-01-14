@@ -90,7 +90,7 @@ do
 done
 
 echo "sep=;">$OUTPUT_FILE
-echo "commitID; subject; feature; upstream_status; general; type; author; changeID; dup" >>$OUTPUT_FILE
+echo "commitID; subject; feature; upstream_status; general; type; author; Fixes; changeID; dup" >>$OUTPUT_FILE
 RC=0
 echo "Scanning files..."
 file_path="./combined.csv"
@@ -101,7 +101,7 @@ touch ${err_path}
 git log --oneline --color=never > ${log_path}
 	while read -r line
 	do
-		commitID=$(get_line_without_subject "$line")
+		commitID="$(get_line_without_subject "$line")"
 		changeID=$(git show ${commitID} | grep Change-Id: | head -1| cut -d":" -f2)
 		if [ -z $"$changeID" ]; then
 			echo "no change-id found for commit: "${commitID}"" >> $err_path
@@ -113,12 +113,13 @@ git log --oneline --color=never > ${log_path}
 			echo "no subject found for commit: "${commitID}"" >> $err_path
 			continue
 		fi
+		fixes=$(git show $commitID | grep "Fixes:" | sed -e 's/Fixes://' | sed 's/^ *//g' | sed ':a;N;$!ba;s/\n/ /g')
 		patch_data="$(get_all_but_CID "${line_at_combined}")"
 		copies=$(grep "${subject}" "${file_path}" | wc -l)
 		if [ $copies -gt 1 ]; then
-			echo "${commitID}; ${patch_data} ${changeID}; dup subject">>$OUTPUT_FILE
+			echo "${commitID}; ${patch_data} $fixes; ${changeID}; dup subject" >>$OUTPUT_FILE
 		else
-			echo "${commitID}; ${patch_data} ${changeID}">>$OUTPUT_FILE
+			echo "${commitID}; ${patch_data} $fixes; ${changeID};" >>$OUTPUT_FILE
 		fi
 
 	done < $log_path
