@@ -6,6 +6,9 @@ if ! command -v unifdef &> /dev/null
 then
 	echo "unifdef tool is missing.. installing"
 	case $OS in
+		*debian*)
+			sudo apt-get install unifdef
+			;;
 		*fedora*)
 			sudo yum -y install unifdef
 			;;
