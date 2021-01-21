@@ -104,7 +104,7 @@ else
 	fi
 fi
 echo "script running.."
-if [ ! "$IS_GIT" ];then
+if [ ! "$IS_GIT" = true ];then
 	if [ ! -d $BCK_DIR ];then
 		echo "Copy backup to $BCK_DIR"
 		sudo /bin/cp -rf $ofa_dir $BCK_DIR
@@ -146,7 +146,7 @@ do
 	unifdef -f ${CONFIG} ${i} -o ${i}.tmp
 	mv -f ${i}.tmp $i
 done
-if [ "$IS_GIT" ];then
+if [ "$IS_GIT" = true ];then
 	git add -u
 	git commit -s -m "BASECODE: remove #ifdef from code"
 fi
@@ -154,7 +154,7 @@ echo
 echo "Script ended succsfully!"
 echo "---------------------------------------------------------------------------"
 echo "OFED plain basecode directory: '$ofa_dir'"
-if [ ! "$IS_GIT" ];then
+if [ ! "$IS_GIT" = true ];then
 echo "Original OFED directory: '$BCK_DIR'"
 fi
 echo "Config used: '$CONFIG'"
