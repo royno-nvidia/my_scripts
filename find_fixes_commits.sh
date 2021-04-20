@@ -62,6 +62,7 @@ do
 done
 slog=$(git log --oneline --color=never --pretty=format:%h)
 first_commit=$(git log --oneline --color=never --pretty=format:%h | tail -1)
+manually_check=""
 OFED_FIX=false
 for sha in $slog
 do
@@ -72,6 +73,11 @@ do
 	cmsg=$(git log $sha^..$sha)
 	if (echo $cmsg | grep -qE ".*Fixes.*"); then
 		fixes=$(git log $sha^..$sha | grep -E ".Fixes.*[0-9a-f]{12}" | grep -oE "[0-9a-f]{12}")
+		# catch cases Fixes in commit but no hash provided
+		if [ -z "$fixes" ]; then
+			manually_check="$manually_check $sha"
+			continue
+		fi
 		# patch can fix multiple patches
 		for fix in $fixes
 		do
@@ -81,14 +87,23 @@ do
 			fi
 		done
 		if [ "$OFED_FIX" = true ]; then
-			echo "$sha : OFED - Fixes $fix_for"
+			echo "$sha - OFED FIX - Fixes $fix_for"
 		else
 			if [ "$SHOW_ALL" = true ]; then
-				echo "$sha: UPSTREAM"
+				for fix in $fixes
+				do
+					fix_for="$fix_for $fix"
+				done
+				echo "$sha - UPSTREAM FIX - Fixes $fix_for"
 			fi
 		fi
 	fi
 	OFED_FIX=false
 	fix_for=""
 done
+if [ ! -z "$manually_check" ]; then
+	echo
+	echo "Please check manually:"
+	echo $manually_check
+fi
 exit $RC
