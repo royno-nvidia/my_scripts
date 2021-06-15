@@ -4,7 +4,7 @@
 #
 # This Software is licensed under one of the following licenses:
 #
-# 1) under the terms of the "Common Public License 1.0" a copy of which is
+# 1) he terms of the "Common Public License 1.0" a copy of which is
 #    available from the Open Source Initiative, see
 #    http://www.opensource.org/licenses/cpl.php.
 #
@@ -35,6 +35,7 @@ SHOW_ALL=false
 #
 # main
 #
+OUTPUTFILE="fixes_table.csv"
 while [ ! -z "$1" ]
 do
 	case "$1" in
@@ -46,11 +47,16 @@ do
 
 		-h, --help 		display this help message and exit.
 		-a, --show-all		show all Fixes include upstream.
+		-o, --otuput		redirect output file.
 "
 		exit 1
 		;;
 		-a | --show-all)
 			SHOW_ALL=true
+		;;
+		-o | --output)
+			shift
+			OUTPUTFILE=$1
 		;;
 		*)
 		echo "-E- Unsupported option: $1" >&2
@@ -60,50 +66,49 @@ do
 	esac
 	shift
 done
+echo "sep=;">$OUTPUTFILE
+echo "Subject; Fixes; Status;" >>$OUTPUTFILE
 slog=$(git log --oneline --color=never --pretty=format:%h)
+full_slog=$(git log --oneline --color=never --pretty=format:"%h %s")
 first_commit=$(git log --oneline --color=never --pretty=format:%h | tail -1)
 manually_check=""
-OFED_FIX=false
+OLD_IFS=$IFS
 for sha in $slog
 do
-	#file in log at Initial commit
+	#fail in log at Initial commit
 	if [ "$sha" == "$first_commit" ]; then
 		continue
 	fi
 	cmsg=$(git log $sha^..$sha)
+	sub=$(git log $sha^..$sha --color=never --pretty=format:"%s")
 	if (echo $cmsg | grep -qE ".*Fixes.*"); then
-		fixes=$(git log $sha^..$sha | grep -E ".Fixes.*[0-9a-f]{12}" | grep -oE "[0-9a-f]{12}")
+		fixes_line=$(echo $cmsg | grep -E ".Fixes.*[0-9a-f]{12}")
+		fixes_hash=$(echo $fixes_line | grep -oE "[0-9a-f]{12}")
+		fixes_sub=$(echo $fixes_line | grep -oE "\".*\"" | sed 's/\"//g')
 		# catch cases Fixes in commit but no hash provided
-		if [ -z "$fixes" ]; then
+		if [ -z "$fixes_hash" ]; then
 			manually_check="$manually_check $sha"
 			continue
 		fi
-		# patch can fix multiple patches
-		for fix in $fixes
-		do
-			if (echo $slog | grep -qw $fix); then
-				OFED_FIX=true
-				fix_for="$fix_for $fix"
-			fi
-		done
-		if [ "$OFED_FIX" = true ]; then
-			echo "$sha - OFED FIX - Fixes $fix_for"
-		else
-			if [ "$SHOW_ALL" = true ]; then
-				for fix in $fixes
-				do
-					fix_for="$fix_for $fix"
-				done
-				echo "$sha - UPSTREAM FIX - Fixes $fix_for"
-			fi
+		if (echo $full_slog | grep -q "$fixes_sub"); then
+			echo "$sub;$fixes_sub;;" >> $OUTPUTFILE
 		fi
+		IFS=$OLD_IFS
+		# patch can fix multiple patches
+		#for fix in $fixes_hash
+		#do
+		#	if (echo $full_slog | grep -qw $fix); then
+		#		OFED_FIX=true
+		#		fix_for="$fix_for $fix"
+		#	fi
+		#done
 	fi
-	OFED_FIX=false
-	fix_for=""
 done
 if [ ! -z "$manually_check" ]; then
 	echo
 	echo "Please check manually:"
 	echo $manually_check
 fi
+echo 
+echo "See results in '$OUTPUTFILE'"
 exit $RC
