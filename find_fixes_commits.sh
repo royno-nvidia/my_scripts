@@ -94,14 +94,6 @@ do
 			echo "$sub;$fixes_sub;;" >> $OUTPUTFILE
 		fi
 		IFS=$OLD_IFS
-		# patch can fix multiple patches
-		#for fix in $fixes_hash
-		#do
-		#	if (echo $full_slog | grep -qw $fix); then
-		#		OFED_FIX=true
-		#		fix_for="$fix_for $fix"
-		#	fi
-		#done
 	fi
 done
 if [ ! -z "$manually_check" ]; then

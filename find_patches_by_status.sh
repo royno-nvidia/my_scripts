@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ######## VARIABLES ########
-LOG="/tmp/t.txt"
+LOG="/tmp/log.txt"
 FROM=""
 TO=""
 STATUS=""
@@ -46,16 +46,21 @@ do
 done
 
 ######################
-if [ -z "$TO" ] || [ -z "$FROM" ] || [ -z "$STATUS" ]; then
-	echo "-E- must get -f, -t, -s arguments, aborting.."
+if [ -z "$TO" ] || [ -z "$FROM" ]; then
+	echo "-E- must get -f, -t arguments, aborting.."
 	exit 1
 fi
+OUTPUT="/tmp/commit_status_${FROM}_${TO}.txt"
+echo "" > $OUTPUT
 git log --oneline --pretty='format:%s' $FROM^..$TO > $LOG
 while read sub; do
-	if (git grep "$sub" metadata/ | grep -q "upstream_status=$STATUS" ); then
-		echo "$sub"
+	if (git grep "$sub" metadata/ | grep -q "upstream_status=$STATUS;" ); then
+		echo "$sub" >> $OUTPUT
 	fi
 done < $LOG
 rm -rf $LOG
 IFS=$OLD_IFS
+echo
+echo "Script finished.."
+echo "Please see results in '$OUTPUT'"
 exit 0
