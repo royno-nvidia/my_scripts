@@ -29,7 +29,7 @@ do
 	#fi
 	echo "--------------------------------------------------------------------------------------------------"
 	echo "Work on: $patch"
-	sub=$(cat $NEW_P_DIR/$patch | grep -w "Subject" | grep -oE "[0-9]\].*" | grep -oE "[a-zA-Z].*" | head -1)
+	sub=$(cat $NEW_P_DIR/$patch | grep -A1 -w "Subject" | sed "s/'//" | xargs | grep -oE "[0-9]\].*" | grep -oE "[a-zA-Z].*" | head -1)
 	feature=$(git grep "$sub" | grep -oE "feature=.*" | cut -d";" -f1 | sed 's/feature=//' | head -1)
 	echo "subject = $sub"
 	echo "feature = $feature"
