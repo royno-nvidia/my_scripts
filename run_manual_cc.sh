@@ -16,25 +16,22 @@ IGNORE_WARNINGS=".*ibta_vol1_c12.*"
 #----------------------------------------------------------------#
 
 #---------------------SCRIPT VARIABLES---------------------------#
-FULL_LIST=("linux-5.9-rc2,linux-5.8,linux-5.7,linux-5.6,linux-5.5,linux-5.4,linux-5.3.7-301.fc31.x86_64,linux-5.3,linux-5.2,linux-5.0,linux-4.20,linux-4.19,linux-4.18.0-235.el8.x86_64,linux-4.18,linux-4.18.0-193.el8.x86_64,linux-4.18.0-147.el8.x86_64,linux-4.18.0-ngn,linux-4.17-rc1,linux-4.16,linux-4.15,linux-4.14.3,linux-4.13,linux-4.12-rc6,linux-4.11,linux-4.10-Without-VXLAN,linux-4.10-IRQ_POLL-OFF,linux-4.10,linux-4.9,linux-4.8-rc4,linux-4.7-rc7,linux-4.6.3,linux-4.5.1,linux-4.4.73-5-default,linux-4.4.21-69-default,linux-4.4.0-22-generic,linux-4.4,linux-4.3-rc6,linux-4.2-rc8,linux-4.1.12-37.5.1.el6uek.x86_64,linux-4.1,linux-4.0.1,linux-3.19.0,linux-3.18,linux-3.17.1,linux-3.16-rc7,linux-3.15,linux-3.14,linux-3.13.1,linux-3.10.0-327.el7.x86_64,linux-3.10.0-514.el7.x86_64-ok,linux-3.10.0-693.el7.x86_64,linux-3.10.0-862.el7.x86_64,linux-3.10.0-957.el7.x86_64,linux-3.10.0-1149.el7.x86_64")
-
-KERNEL_LIST="
-	'linux-5.9-rc2'\n'linux-5.8'\n'linux-5.7'\n'linux-5.6'\n'linux-5.5'\n'linux-5.4'\n'linux-5.3'\n'linux-5.3.7-301.fc31.x86_64'\n'linux-5.2'\n'linux-5.0'\n'linux-4.20'\n'linux-4.19'\n'linux-4.18.0-235.el8.x86_64'\n'linux-4.18.0-193.el8.x86_64'\n'linux-4.18.0-147.el8.x86_64'\n'linux-4.18.0-ngn'\n'linux-4.18'\n'linux-4.17-rc1'\n'linux-4.16'\n'linux-4.15'\n'linux-4.14.3'\n'linux-4.13'\n'linux-4.12-rc6'\n'linux-4.11'\n'linux-4.10-Without-VXLAN'\n'linux-4.10-IRQ_POLL-OFF'\n'linux-4.10'\n'linux-4.9'\n'linux-4.8-rc4'\n'linux-4.7-rc7'\n'linux-4.6.3'\n'linux-4.5.1'\n'linux-4.4.73-5-default'\n'linux-4.4.21-69-default'\n'linux-4.4.0-22-generic'\n'linux-4.4'\n'linux-4.3-rc6'\n'linux-4.2-rc8'\n'linux-4.1.12-37.5.1.el6uek.x86_64'\n'linux-4.1'\n'linux-4.0.1'\n'linux-3.19.0'\n'linux-3.18'\n'linux-3.17.1'\n'linux-3.16-rc7'\n'linux-3.15'\n'linux-3.14'\n'linux-3.13.1'\n'linux-3.10.0-327.el7.x86_64'\n'linux-3.10.0-514.el7.x86_64-ok'\n'linux-3.10.0-693.el7.x86_64'\n'linux-3.10.0-862.el7.x86_64'\n'linux-3.10.0-957.el7.x86_64'\n'linux-3.10.0-1149.el7.x86_64'
-"
 
 MODULE_LIST="
 	'ib_core'\n''mlx5_mod'\n'ib_ipoib'\n'mlxfw'\n'rxe'\n'fpga'\n'fpga_with_ipsec'\n'custom'\n'all'
 "
 
-KERNEL_ARR=("linux-5.12" "linux-5.11" "linux-5.10-rc2" "linux-5.9" "linux-5.9-rc2" "linux-5.8" "linux-5.7" "linux-5.6" "linux-5.5" "linux-5.4" "linux-5.3.7-301.fc31.x86_64" "linux-5.3" "linux-5.2" "linux-5.0" "linux-4.20" "linux-4.19" "linux-4.18.0-302.el8.x86_64" "linux-4.18.0-235.el8.x86_64" "linux-4.18.0-193.el8.x86_64" "linux-4.18.0-147.el8.x86_64" "linux-4.18.0-ngn" "linux-4.18" "linux-4.17-rc1" "linux-4.16" "linux-4.15" "linux-4.14.3" "linux-4.13" "linux-4.12-rc6" "linux-4.11" "linux-4.10-Without-VXLAN" "linux-4.10-IRQ_POLL-OFF" "linux-4.10" "linux-4.9" "linux-4.8-rc4" "linux-4.7-rc7" "linux-4.6.3" "linux-4.5.1" "linux-4.4.73-5-default" "linux-4.4.21-69-default" "linux-4.4.0-22-generic" "linux-4.4" "linux-4.3-rc6" "linux-4.2-rc8" "linux-4.1.12-37.5.1.el6uek.x86_64" "linux-4.1" "linux-4.0.1" "linux-3.19.0" "linux-3.18" "linux-3.17.1" "linux-3.16-rc7" "linux-3.15" "linux-3.14" "linux-3.13.1" "linux-3.10.0-327.el7.x86_64" "linux-3.10.0-514.el7.x86_64-ok" "linux-3.10.0-693.el7.x86_64" "linux-3.10.0-862.el7.x86_64" "linux-3.10.0-957.el7.x86_64" "linux-3.10.0-1149.el7.x86_64")
+KERNEL_ARR=("linux-5.13-rc4" "linux-5.12" "linux-5.11" "linux-5.10-rc2" "linux-5.9" "linux-5.9-rc2" "linux-5.8" "linux-5.7" "linux-5.6" "linux-5.5" "linux-5.4" "linux-5.3.7-301.fc31.x86_64" "linux-5.3" "linux-5.2" "linux-5.0" "linux-4.20" "linux-4.19" "linux-4.18.0-302.el8.x86_64" "linux-4.18.0-235.el8.x86_64" "linux-4.18.0-193.el8.x86_64" "linux-4.18.0-147.el8.x86_64" "linux-4.18.0-ngn" "linux-4.18" "linux-4.17-rc1" "linux-4.16" "linux-4.15" "linux-4.14.3" "linux-4.13" "linux-4.12-rc6" "linux-4.11" "linux-4.10-Without-VXLAN" "linux-4.10-IRQ_POLL-OFF" "linux-4.10" "linux-4.9" "linux-4.8-rc4" "linux-4.7-rc7" "linux-4.6.3" "linux-4.5.1" "linux-4.4.73-5-default" "linux-4.4.21-69-default" "linux-4.4.0-22-generic" "linux-4.4" "linux-4.3-rc6" "linux-4.2-rc8" "linux-4.1.12-37.5.1.el6uek.x86_64" "linux-4.1" "linux-4.0.1" "linux-3.19.0" "linux-3.18" "linux-3.17.1" "linux-3.16-rc7" "linux-3.15" "linux-3.14" "linux-3.13.1" "linux-3.10.0-327.el7.x86_64" "linux-3.10.0-514.el7.x86_64-ok" "linux-3.10.0-693.el7.x86_64" "linux-3.10.0-862.el7.x86_64" "linux-3.10.0-957.el7.x86_64" "linux-3.10.0-1149.el7.x86_64")
 
-SCRIPT_NAME="run_job"
+SCRIPT_NAME="run_manual_cc"
 IB_CORE_FLAGS="--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-memtrack"
 MLX5_MOD_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod"
 IB_IPOIB_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-ipoib-mod"
 MLXFW_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-mlxfw-mod"
 FPGA_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-innova-flex"
 IPSEC_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-innova-flex,--with-innova-ipsec"
+ALL_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-ipoib-mod,--with-mlxfw-mod,--with-srp-mod,--with-iser-mod,--with-isert-mod,--with-nvmf_host-mod,--with-nvmf_target-mod,--with-gds,--with-nfsrdma-mod,--with-mlxdevm-mod"
+
 JOB_PACKAGES=""
 JOB_KERNELS=""
 SELECTED_MODULES=""
@@ -48,17 +45,35 @@ WITHOUT_ODP=0
 DEBUG_MODE=0
 
 #-------------------FUNCTIONS-----------------#
+print_kernel_list()
+{
+	local delim=$1; shift
+	list=""
+	for ker in "${KERNEL_ARR[@]}"
+	do
+		if [ -z "$delim" ]; then
+			list="$list\n${ker}"
+		else
+			list="$list${delim}${ker}"
+		fi
+	done
+	if [ -z "$delim" ]; then
+		echo ${list:2}
+	else
+		echo ${list:1}
+	fi
+}
 
 check_selected_kernel()
 {
-local arg=$1; shift 
-for ker in "${KERNEL_ARR[@]}"
-do
-	if [ $ker = $arg ]; then
-		echo 1
-	fi
-done
-echo 0
+	local arg=$1; shift 
+	for ker in "${KERNEL_ARR[@]}"
+	do
+		if [ $ker = $arg ]; then
+			echo 1
+		fi
+	done
+	echo 0
 }
 
 
@@ -117,7 +132,7 @@ do
 		-k | --kernel-list)
 		echo "kernel list:"
 		echo "-----------------"
-		echo -e $KERNEL_LIST
+		echo -e "$(print_kernel_list)"
 		exit 1	
 		;;
 		-f | --full-list)
@@ -160,6 +175,9 @@ do
 			fpga_with_ipsec)
 			JOB_PACKAGES=$IPSEC_FLAGS
 			IS_IPSEC=1
+			;;
+			all)
+			JOB_PACKAGES=$ALL_FLAGS
 			;;
 			custom)
 			JOB_PACKAGES=$3
@@ -252,6 +270,7 @@ if [ $IS_CUSTOM -eq 1 ]; then
 		JOB_KERNELS="$JOB_KERNELS$(custom_kernels)"
 fi
 if [ $IS_FULL -eq 1 ] || [ $IS_CUSTOM -eq 0 ]; then
+	FULL_LIST=$(print_kernel_list ",")
 	JOB_KERNELS=$FULL_LIST	
 	if [ $IS_IPSEC -eq 1 ]
 	then
