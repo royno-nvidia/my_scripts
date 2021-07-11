@@ -2,7 +2,7 @@
 
 #---------------------USER MUTABLES---------------------------#
 #PREMANENT_USER get username:gerrit_password, F.E "royno:123123"
-#!!please notice!! this user and password are not secured so remember to erase it at the end of use. 
+#!!please notice!! this user and password are not secured so remember to erase it at the end of use.
 PERMANENT_USER=""
 #--------------------------------------------------------------------------------------------------#
 
@@ -30,8 +30,7 @@ IB_IPOIB_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_
 MLXFW_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-mlxfw-mod"
 FPGA_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-innova-flex"
 IPSEC_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-innova-flex,--with-innova-ipsec"
-ALL_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-ipoib-mod,--with-mlxfw-mod,--with-srp-mod,--with-iser-mod,--with-isert-mod,--with-nvmf_host-mod,--with-nvmf_target-mod,--with-gds,--with-nfsrdma-mod,--with-mlxdevm-mod"
-
+ALL_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-ipoib-mod,--with-mlxfw-mod,--with-srp-mod,--with-iser-mod,--with-isert-mod,--with-nvmf_host-mod,--with-nvmf_target-mod,--with-gds,--with-nfsrdma-mod,--with-mlxdevm-mod,--with-mlx5-ipsec"
 JOB_PACKAGES=""
 JOB_KERNELS=""
 SELECTED_MODULES=""
@@ -66,7 +65,7 @@ print_kernel_list()
 
 check_selected_kernel()
 {
-	local arg=$1; shift 
+	local arg=$1; shift
 	for ker in "${KERNEL_ARR[@]}"
 	do
 		if [ $ker = $arg ]; then
@@ -97,10 +96,10 @@ do
 		fi
 	fi
 	if [ $SELECTED_KERNEL = ${KERNEL_ARR[$index]} ]; then
-		index=$((index+1))		
+		index=$((index+1))
 		while [ $how_many -gt 0 ] && [ $index -lt ${#KERNEL_ARR[@]} ];
 		do
-			ret_list="$ret_list,${KERNEL_ARR[$index]}"		
+			ret_list="$ret_list,${KERNEL_ARR[$index]}"
 			if [ $IS_IPSEC -eq 1 ]
 			then
 				if [ ${KERNEL_ARR[$index]} = "linux-4.13" ]; then
@@ -111,7 +110,7 @@ do
 			index=$((index+1))
 			how_many=$((how_many-1))
 		done
-		echo $ret_list	
+		echo $ret_list
 	fi
 done
 }
@@ -127,13 +126,13 @@ do
 		echo "module list:"
 		echo "------------"
 		echo -e $MODULE_LIST
-		exit 1	
+		exit 1
 		;;
 		-k | --kernel-list)
 		echo "kernel list:"
 		echo "-----------------"
 		echo -e "$(print_kernel_list)"
-		exit 1	
+		exit 1
 		;;
 		-f | --full-list)
 		IS_FULL=1
@@ -144,13 +143,13 @@ do
 		-c | --custom)
 		SELECTED_KERNEL="$2"
 		ret=$(check_selected_kernel "${SELECTED_KERNEL}")
-		if [ "$ret" = "0" ] 
+		if [ "$ret" = "0" ]
 		then I
 			echmnent "-E- Unsupported kernek: $SELECTED_KERNEL" >&2
 			echo "please check available kernels with -k,--kernel-list"
 			exit 1
-			
-		fi	
+
+		fi
 		IS_CUSTOM=1
 		shift
 		;;
@@ -196,21 +195,21 @@ do
 			IGNORE_WARNINGS="$2"
 		else
 			IGNORE_WARNINGS="${IGNORE_WARNINGS},$2"
-		fi	
+		fi
 		shift
 		;;
 		-g | --git-repo)
 		if [[ $2 =~ "/mlnx-ofa_kernel-4.0" ]]; then
 		GIT_PATH=$2
 		else
-		echo "given path with flag {-g | --git-repo} must end with /mlnx-ofa_kernel-4.0" 
+		echo "given path with flag {-g | --git-repo} must end with /mlnx-ofa_kernel-4.0"
 		exit 1
 		fi
 		shift
 		;;
 		-h | --help)
 		echo "Usage: ${SCRIPT_NAME} [options]
-			
+
 	use this script to config your jenkins job.
 	this job will build ofed over wanted kernels.
 
@@ -221,9 +220,9 @@ do
 		-n, --without-odp	ignore odp feature at configure.
 		-k, --kernel-list 	display availanle KERNELS and exit.
 		-l, --module-list	display available MODULEs and exit.
-		-c, --custom 		run job for all kernels higher then given kernel plus 3 kernels below. 
+		-c, --custom 		run job for all kernels higher then given kernel plus 3 kernels below.
 		-f, --full-list		run job for all available kernels [default].
-		-i, --ignore		interactive ignore warning [argument sould be regex syntax, 
+		-i, --ignore		interactive ignore warning [argument sould be regex syntax,
 					for permanent ignore add inside script IGNORE_WARNINGS variable].
 		-g, --git-repo		replace default path for git repository job will use as base code.
 					this path must point to /mlnx-ofa_kernel-4.0/ directory
@@ -233,10 +232,10 @@ do
 		;;
 		*)
 		echo "-E- Unsupported option: $1" >&2
-		echo "use -h flag to display help menu" 
+		echo "use -h flag to display help menu"
 		exit 1
 		;;
-	esac 
+	esac
 	shift
 done
 if [ -z "$GIT_PATH" ]
@@ -254,7 +253,7 @@ fi
 if [[ $GIT_PATH =~ "/mlnx-ofa_kernel-4.0/"  ]]; then
 echo "git repository build: ${GIT_PATH}"
 else
-echo "path at GIT_PATH variable must end with /mlnx-ofa_kernel-4.0/" 
+echo "path at GIT_PATH variable must end with /mlnx-ofa_kernel-4.0/"
 exit 1
 fi
 [ $DEBUG_MODE -eq 1 ] && set -x #acivate 'set -x' if DEBUG_MODE is active
@@ -262,7 +261,7 @@ if [ -z "$SELECTED_MODULE" ]
 then
 	SELECTED_MODULE="ib_core [default]"
 	JOB_PACKAGES=$IB_CORE_FLAGS
-fi	
+fi
 if [ $WITHOUT_ODP -eq 1 ]; then
 	JOB_PACKAGES="$JOB_PACKAGES,--without-odp"
 fi
@@ -271,14 +270,14 @@ if [ $IS_CUSTOM -eq 1 ]; then
 fi
 if [ $IS_FULL -eq 1 ] || [ $IS_CUSTOM -eq 0 ]; then
 	FULL_LIST=$(print_kernel_list ",")
-	JOB_KERNELS=$FULL_LIST	
+	JOB_KERNELS=$FULL_LIST
 	if [ $IS_IPSEC -eq 1 ]
 	then
 		SELECTED_KERNEL="linux-4.11"
 		JOB_KERNELS="$(custom_kernels)"
 	fi
 fi
-echo "start docker build with configuration:" 
+echo "start docker build with configuration:"
 echo "module check: $SELECTED_MODULE"
 echo "configure: $JOB_PACKAGES"
 if [ $WITHOUT_ODP -eq 1 ]; then
@@ -288,8 +287,12 @@ echo "compile over kernels: $JOB_KERNELS"
 if [ ! -z "$PERMANENT_USER" ]
 then
 curl -u ${PERMANENT_USER} "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&GIT_REPOSITORY=${GIT_PATH}.git&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
-else 
+else
 curl -u $(whoami) "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&GIT_REPOSITORY=${GIT_PATH}.git&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
 fi
-echo "job is running, see results at link:"
-echo "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/" 
+if [ $? -eq 0 ]; then
+	echo "job is running, see results at link:"
+	echo "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/"
+else
+	echo "Something went wrong... Please check trace"
+fi
