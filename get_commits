@@ -1,5 +1,5 @@
 #!/bin/bash
-
+CWD=$PWD
 tag=
 end=
 output_dir=patches
@@ -7,6 +7,8 @@ filter=
 files=
 list=1
 get=0
+SLOG_FILTER=0
+FIXES=0
 
 usage()
 {
@@ -23,6 +25,8 @@ Options:
 	--list-only               Only list changes
 	--output-dir              Output dir for saving the patches
 	--get-patches             Save patches to given output dir: '$output_dir'
+	--fixes			  Get only patches with 'Fixes' in commit message
+	--filter		  Get only patches missing in current OFED dir
 	-h, --help                Show help message
 EOF
 }
@@ -58,6 +62,12 @@ do
 		files="$2"
 		shift
 		;;
+		--filter)
+		SLOG_FILTER=1
+		;;
+		--fixes)
+		FIXES=1
+		;;
 		-h | *help)
 		usage
 		exit 0
@@ -69,6 +79,12 @@ do
 	esac
 	shift
 done
+if [ $SLOG_FILTER -eq 1 ]; then
+	cd $files
+	SLOG=$(git log --oneline --color=never)
+	cd $CWD
+fi
+files="$files/ofed_scripts/checkout_files"
 git pull --dry-run | grep -q -v 'Already up-to-date.' && changed=1
 if [ -z "$tag" ]; then
 	echo "must provide --tag" >&2
@@ -88,3 +104,23 @@ if [ $list -eq 1 ]; then
 elif [ $get -eq 1 ]; then
 	git format-patch -o $output_dir ${tag}..${end} $filter
 fi
+if [ $FIXES -eq 1 ] || [ $SLOG_FILTER -eq 1 ]; then
+	for file in $(ls $output_dir)
+	do
+		if [ $FIXES -eq 1 ]; then
+			if !(cat $output_dir/$file  | grep -Eq "^[F|f]ixes: [0-9a-f]{12,40}"); then
+				echo "$output_dir/$file - Missing Fixes, removing.."
+				rm -rf $output_dir/$file
+				continue
+			fi
+		fi
+		if [ $SLOG_FILTER -eq 1 ]; then
+			sub=$(cat $output_dir/$file | grep -A1 -w "Subject" | sed "s/'//" | xargs | grep -oE "[0-9]\].*" | grep -oE "[a-zA-Z].*" | head -1)
+			if (echo "$SLOG" | grep -q "$sub");then
+				echo "$output_dir/$file - Subject inside, removing.."
+				rm -rf $output_dir/$file
+			fi
+		fi
+	done
+fi
+

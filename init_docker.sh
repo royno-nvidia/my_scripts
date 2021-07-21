@@ -7,17 +7,18 @@ ib_ipoib_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_
 mlxfw_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-mlxfw-mod --with-mdev-mod"
 fpga_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-innova-flex"
 ipsec_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod  --with-mlx5-mod --with-innova-flex --with-innova-ipsec"
+all_flags="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod --with-ipoib-mod --with-mlxfw-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-nvmf_host-mod --with-nvmf_target-mod --with-gds --with-mdev-mod --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec"
 my_flags=""
 script_name="init_docker"
 selected_module=""
 without_odp=0
-build_dir="do_build"
+build_dir="do_build3"
 module_list="
-'ib_core'\n'mlx5_mod'\n'ib_ipoib'\n'mlxfw'\n'rxe'\nfpga\nfpga_with_ipsec\n'custom'\n
+'ib_core'\n'mlx5_mod'\n'ib_ipoib'\n'mlxfw'\n'rxe'\nfpga\nfpga_with_ipsec\n'all'\n'custom'\n
 "
 #--------------------------MAIN-----------------------#
 MY_BRANCH=$(cat /git-repo/HEAD | sed -e 's/.*heads\///')
-if [[ $MY_BRANCH == *"backport"* ]]; then
+if [[ $MY_BRANCH == "backport"* ]]; then
         echo "-E- your current branch is backport branch,"
         echo "please checkout another before running this script"
         exit 1
@@ -54,6 +55,9 @@ do
 			;;
 			fpga_with_ipsec)
 			my_flags=$ipsec_flags
+			;;
+			all)
+			my_flags=$all_flags
 			;;
 			custom)
 			my_flags=$(echo $3 | sed 's/--package=//g')
@@ -99,15 +103,13 @@ echo "compile flags: $my_flags"
 echo "start docker build"
 major=$(echo $input_version | sed -e 's/linux-//g' | cut -d"." -f1)
 minor=$(echo $input_version | sed -e 's/linux-//g' | sed -e 's/-.*//g' |cut -d"." -f2)
-if [ $major -ge 5 ]; then
-	if [ $minor -ge 8 ] || [ $major -gt 5 ]; then
-		build_dir="do_build3"
-	fi
-fi
+build_dir="$(ls -1 | grep do_)"
 /builder/${build_dir} --git /git-repo/ --rev HEAD --kver ${input_version} --ksrc /tmp/linux-${input_version}/ --package="${my_flags}" --check-warnings
 cd /build/mlnx_ofed/
 echo "installing vim"
 yum -yq install vim
+yum -yq install ctags
+ctags -R .
 git config --global user.email "aaa@gmail.com"
 git add -u
 git commit -s -m "Temp commit"

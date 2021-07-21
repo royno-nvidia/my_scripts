@@ -24,6 +24,7 @@ MODULE_LIST="
 KERNEL_ARR=("linux-5.13-rc4" "linux-5.12" "linux-5.11" "linux-5.10-rc2" "linux-5.9" "linux-5.9-rc2" "linux-5.8" "linux-5.7" "linux-5.6" "linux-5.5" "linux-5.4" "linux-5.3.7-301.fc31.x86_64" "linux-5.3" "linux-5.2" "linux-5.0" "linux-4.20" "linux-4.19" "linux-4.18.0-302.el8.x86_64" "linux-4.18.0-235.el8.x86_64" "linux-4.18.0-193.el8.x86_64" "linux-4.18.0-147.el8.x86_64" "linux-4.18.0-ngn" "linux-4.18" "linux-4.17-rc1" "linux-4.16" "linux-4.15" "linux-4.14.3" "linux-4.13" "linux-4.12-rc6" "linux-4.11" "linux-4.10-Without-VXLAN" "linux-4.10-IRQ_POLL-OFF" "linux-4.10" "linux-4.9" "linux-4.8-rc4" "linux-4.7-rc7" "linux-4.6.3" "linux-4.5.1" "linux-4.4.73-5-default" "linux-4.4.21-69-default" "linux-4.4.0-22-generic" "linux-4.4" "linux-4.3-rc6" "linux-4.2-rc8" "linux-4.1.12-37.5.1.el6uek.x86_64" "linux-4.1" "linux-4.0.1" "linux-3.19.0" "linux-3.18" "linux-3.17.1" "linux-3.16-rc7" "linux-3.15" "linux-3.14" "linux-3.13.1" "linux-3.10.0-327.el7.x86_64" "linux-3.10.0-514.el7.x86_64-ok" "linux-3.10.0-693.el7.x86_64" "linux-3.10.0-862.el7.x86_64" "linux-3.10.0-957.el7.x86_64" "linux-3.10.0-1149.el7.x86_64")
 
 SCRIPT_NAME="run_manual_cc"
+compiler_ver="rhel8"
 IB_CORE_FLAGS="--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-memtrack"
 MLX5_MOD_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod"
 IB_IPOIB_FLAGS="--with-memtrack,--with-core-mod,--with-user_mad-mod,--with-user_access-mod,--with-addr_trans-mod,--with-mlx5-mod,--with-ipoib-mod"
@@ -143,14 +144,17 @@ do
 		-c | --custom)
 		SELECTED_KERNEL="$2"
 		ret=$(check_selected_kernel "${SELECTED_KERNEL}")
-		if [ "$ret" = "0" ]
-		then I
+		if [ "$ret" = "0" ]; then
 			echmnent "-E- Unsupported kernek: $SELECTED_KERNEL" >&2
 			echo "please check available kernels with -k,--kernel-list"
 			exit 1
 
 		fi
 		IS_CUSTOM=1
+		shift
+		;;
+		--compiler)
+		compiler_ver="$2"
 		shift
 		;;
 		-m | --module)
@@ -227,6 +231,7 @@ do
 		-g, --git-repo		replace default path for git repository job will use as base code.
 					this path must point to /mlnx-ofa_kernel-4.0/ directory
 		-d, --debug-mode	activace 'set -x' will output all script log, still activate job.
+		-c, --compiler		Choose compiler version [Default rhel8]
 "
 		exit 1
 		;;
@@ -250,12 +255,12 @@ if [[ $MY_BRANCH == *"backport"* ]]; then
         echo "please checkout another before running this script"
         exit 1
 fi
-if [[ $GIT_PATH =~ "/mlnx-ofa_kernel-4.0/"  ]]; then
-echo "git repository build: ${GIT_PATH}"
-else
-echo "path at GIT_PATH variable must end with /mlnx-ofa_kernel-4.0/"
-exit 1
-fi
+#if [[ $GIT_PATH =~ "/mlnx-ofa_kernel-4.0/"  ]]; then
+#echo "git repository build: ${GIT_PATH}"
+#else
+#echo "path at GIT_PATH variable must end with /mlnx-ofa_kernel-4.0/"
+#exit 1
+#fi
 [ $DEBUG_MODE -eq 1 ] && set -x #acivate 'set -x' if DEBUG_MODE is active
 if [ -z "$SELECTED_MODULE" ]
 then
@@ -277,18 +282,19 @@ if [ $IS_FULL -eq 1 ] || [ $IS_CUSTOM -eq 0 ]; then
 		JOB_KERNELS="$(custom_kernels)"
 	fi
 fi
-echo "start docker build with configuration:"
-echo "module check: $SELECTED_MODULE"
-echo "configure: $JOB_PACKAGES"
+echo "Start docker build with configuration:"
+echo "Compile against: ${compiler_ver}"
+echo "Module check: $SELECTED_MODULE"
+echo "Configure: $JOB_PACKAGES"
 if [ $WITHOUT_ODP -eq 1 ]; then
-	echo "compile without ODP"
+	echo "Compile without ODP"
 fi
-echo "compile over kernels: $JOB_KERNELS"
+echo "Compile over kernels: $JOB_KERNELS"
 if [ ! -z "$PERMANENT_USER" ]
 then
-curl -u ${PERMANENT_USER} "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&GIT_REPOSITORY=${GIT_PATH}.git&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
+curl -u ${PERMANENT_USER} "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&GIT_REPOSITORY=${GIT_PATH}.git&IMAGE_TAG=${compiler_ver}&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
 else
-curl -u $(whoami) "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&GIT_REPOSITORY=${GIT_PATH}.git&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
+curl -u $(whoami) "http://linux-int.lab.mtl.com:8080/job/MLNX_OFED/job/CI/job/ofed-5.1_backports/buildWithParameters?token=backports&GIT_REPOSITORY=${GIT_PATH}.git&IMAGE_TAG=${compiler_ver}&KERNELS=${JOB_KERNELS}&PACKAGES=${JOB_PACKAGES}&WARNINGS_IGNORES=${IGNORE_WARNINGS}"
 fi
 if [ $? -eq 0 ]; then
 	echo "job is running, see results at link:"
