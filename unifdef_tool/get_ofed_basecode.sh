@@ -136,6 +136,11 @@ if [ ! -f "${CONFIG}" ]; then
 	echo "-E- Config file does not exist at '${CONFIG}'" >&2
 	exit 1
 fi
+# This part search & remove risk defines that can change their values during compilation
+for d in $(grep -rE "^#define.*HAVE_.*|^#undef.*HAVE_.*" | grep -v compat/config | grep -v compat/configure.ac | grep -v backports | grep -v output | grep -vi binary | sed 's/.*\(HAVE_[A-Z0-9_]*\).*/\1/' | sort | uniq) 
+do 
+	sed -i "/\<${d}\>/d" ${CONFIG}
+done
 echo "start cleaning files.."
 for i in $(find ${ofa_dir} \( -name '*.c' -o \
 			  -name '*.h' -o \
