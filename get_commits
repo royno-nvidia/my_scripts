@@ -1,5 +1,6 @@
 #!/bin/bash
 CWD=$PWD
+tmp=/tmp/tmp_dir_for_get_commits
 tag=
 end=
 output_dir=patches
@@ -9,6 +10,7 @@ list=1
 get=0
 SLOG_FILTER=0
 FIXES=0
+MISSING=""
 
 usage()
 {
@@ -102,9 +104,12 @@ echo Files: $files
 if [ $list -eq 1 ]; then
 	git log --oneline --decorate ${tag}..${end} $filter
 elif [ $get -eq 1 ]; then
-	git format-patch -o $output_dir ${tag}..${end} $filter
+	echo "Take relevant patches.."
+	git format-patch -N -qo $output_dir ${tag}..${end} $filter
+	git format-patch -N -qo $tmp ${tag}..${end}
 fi
 if [ $FIXES -eq 1 ] || [ $SLOG_FILTER -eq 1 ]; then
+	echo "Analyzing patches.."
 	for file in $(ls $output_dir)
 	do
 		if [ $FIXES -eq 1 ]; then
@@ -119,11 +124,29 @@ if [ $FIXES -eq 1 ] || [ $SLOG_FILTER -eq 1 ]; then
 			if (echo "$SLOG" | grep -qE "$sub *$");then
 				echo "$output_dir/$file - Subject inside, removing.."
 				rm -rf $output_dir/$file
+				continue
 			fi
 		fi
+		search=$(echo $file | sed 's/[0-9]*-//')
+		search=${search::50}
+		up_name=$(ls $tmp | grep $search)
+		if (! cmp --silent $output_dir/$file $tmp/$up_name); then
+			MISSING="$MISSING$file\n"
+		fi
 	done
+fi
+if [ $get -eq 1 ];then
+	rm -rf $tmp
 fi
 echo
 echo "-------------------------------------------------------------------------"
 echo "See results in $output_dir"
 echo "-------------------------------------------------------------------------"
+if [ "X$MISSING" != "X" ];then
+	echo
+	echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+	echo "IMPORTANT: Patches that missing upstream parts: [PLEASE REVIEW]"
+
+	printf $MISSING
+	echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+fi
