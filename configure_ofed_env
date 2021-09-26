@@ -6,7 +6,7 @@ if test -x $INFINIBAND_INFO; then
 	opts=`$INFINIBAND_INFO | grep 'Configure options: ' | cut -d: -f2`
 else
 	echo "No /etc/infiniband/info found, using default options"
-	opts="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod --with-ipoib-mod --with-mlxfw-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-nvmf_host-mod --with-nvmf_target-mod --with-innova-flex --with-innova-ipsec --with-mdev-mod --with-nfsrdma-mod"
+	opts="--with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod --with-ipoib-mod --with-mlxfw-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-nvmf_host-mod --with-nvmf_target-mod --with-gds --with-mdev-mod --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec --with-sf-cfg-drv"
 fi
 
 for file in configure Makefile makefile; do
