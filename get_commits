@@ -54,10 +54,18 @@ do
 		;;
 		--outdir)
 		output_dir="$2"
+		if [ -d "$output_dir" ]; then
+			echo "Directory '$output_dir' exists.. Aborting"
+			exit 1
+		fi
 		shift
 		;;
 		--output-dir)
 		output_dir="$2"
+		if [ -d "$output_dir" ]; then
+			echo "Directory '$output_dir' exists.. Aborting"
+			exit 1
+		fi
 		shift
 		;;
 		--files)
@@ -131,11 +139,16 @@ if [ $FIXES -eq 1 ] || [ $SLOG_FILTER -eq 1 ]; then
 fi
 #check and alert for partial patchs
 if [ $get -eq 1 ];then
+	echo "Looking for partial patches.."
 	for file in $(ls $output_dir)
 	do
 		search=$(echo $file | sed 's/[0-9]*-//')
 		search=${search::50}
 		up_name=$(ls $tmp | grep $search)
+		if [ "X$up_name" == "X" ];then
+			MISSING="$MISSING$file\n"
+			continue
+		fi
 		if (! cmp --silent $output_dir/$file $tmp/$up_name); then
 			MISSING="$MISSING$file\n"
 		fi
