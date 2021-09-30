@@ -105,7 +105,7 @@ if [ $list -eq 1 ]; then
 	git log --oneline --decorate ${tag}..${end} $filter
 elif [ $get -eq 1 ]; then
 	echo "Take relevant patches.."
-	git format-patch -N -qo $output_dir ${tag}..${end} $filter
+	git format-patch -N -o $output_dir ${tag}..${end} $filter
 	git format-patch -N -qo $tmp ${tag}..${end}
 fi
 if [ $FIXES -eq 1 ] || [ $SLOG_FILTER -eq 1 ]; then
@@ -127,6 +127,12 @@ if [ $FIXES -eq 1 ] || [ $SLOG_FILTER -eq 1 ]; then
 				continue
 			fi
 		fi
+	done
+fi
+#check and alert for partial patchs
+if [ $get -eq 1 ];then
+	for file in $(ls $output_dir)
+	do
 		search=$(echo $file | sed 's/[0-9]*-//')
 		search=${search::50}
 		up_name=$(ls $tmp | grep $search)
@@ -134,8 +140,6 @@ if [ $FIXES -eq 1 ] || [ $SLOG_FILTER -eq 1 ]; then
 			MISSING="$MISSING$file\n"
 		fi
 	done
-fi
-if [ $get -eq 1 ];then
 	rm -rf $tmp
 fi
 echo
