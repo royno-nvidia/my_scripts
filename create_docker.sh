@@ -7,6 +7,7 @@ init_path="/tmp/output/"
 repo_path="/swgwork/valentinef/OFED_REBASE_AREA/rebase_5_5/backports_stage/mlnx-ofa_kernel-4.0"
 script_name="create_docker"
 container_name="$(whoami)"
+external_headers=""
 kernel_list="
 'linux-5.13-rc4'\n'linux-5.12'\n'linux-5.11'\n'linux-5.10-rc2'\n'linux-5.9-rc2'\n'linux-5.8'\n'linux-5.7'\n'linux-5.6'\n'linux-5.5'\n'linux-5.4'\n'linux-5.3'\n'linux-5.2'\n'linux-5.0'\n'linux-4.20'\n'linux-4.19'\n'linux-4.18.0-235.el8.x86_64'\n'linux-4.18'\n'linux-4.17-rc1'\n'linux-4.16'\n'linux-4.15'\n'linux-4.14.3'\n'linux-4.13'\n'linux-4.12-rc6'\n'linux-4.11'\n'linux-4.10-Without-VXLAN'\n'linux-4.10-IRQ_POLL-OFF'\n'linux-4.10'\n'linux-4.9'\n'linux-4.8-rc4'\n'linux-4.7-rc7'\n'linux-4.6.3'\n'linux-4.5.5-300.fc24.x86_64'\n'linux-4.5.1'\n'linux-4.4.73-5-default'\n'linux-4.4.21-69-default'\n'linux-4.4.0-22-generic'\n'linux-4.4'\n'linux-4.3-rc6'\n'linux-4.2.3-300.fc23.x86_64'\n'linux-4.2-rc8'\n'linux-4.1.12-37.5.1.el6uek.x86_64'\n'linux-4.1'\n'linux-4.0.4-301.fc22.x86_64'\n'linux-4.0.1'\n'linux-3.19.0'\n'linux-3.18'\n'linux-3.17.4-301.fc21.x86_64'\n'linux-3.17.1'\n'linux-3.16-rc7'\n'linux-3.15.7-200.fc20.x86_64'\n'linux-3.15'\n'linux-3.14'\n'linux-3.13.1'\n'linux-3.12'\n'linux-3.12.49-11-xen'\n'linux-3.12.49-11-default'\n'linux-3.10'\n'linux-3.12.28-4-default'\n'linux-3.10.0-327.el7.x86_64'\n'linux-3.10.0-514.el7.x86_64-ok'\n'linux-3.10.0-229.el7.x86_64'\n'linux-3.10.0-123.el7.x86_64'\n'linux-3.10.0-693.el7.x86_64'\n'linux-3.10.0-862.el7.x86_64'\n'linux-3.10.0-957.el7.x86_64'
 "
@@ -34,6 +35,10 @@ do
 		container_name="$2"
 		shift
 		;;
+		-e | --external-headers)
+		external_headers="$2"
+		shift
+		;;
 		-c | --compiler)
 		compiler_ver="$2"
 		shift
@@ -48,6 +53,7 @@ do
 		-r, --repository	full path for your git repositoy
 		-n, --name		create container with specific name [Default: user's name]
 		-c, --compiler		Choose compiler version [Default rhel8]
+		-e, --external-headers 	Use Specific headers in path
 "
 		exit 1
 		;;
@@ -94,6 +100,9 @@ minor=$(echo $input_version | sed -e 's/linux-//g' | sed -e 's/-.*//g' |cut -d".
 #	fi
 #fi
 sudo cp /swgwork/royno/OFED/my_scripts/init_docker.sh /tmp/output/
-sudo docker run -it --rm --entrypoint=/bin/bash --tmpfs /build:rw,exec,nosuid,mode=755,size=20G --name=${container_name} --mount type=tmpfs,target=/tmp/ -v ${repo_path}/.git:/git-repo/:ro -v /tmp/output:/output -v /.autodirect/mswg2/work/kernel.org/x86_64/${input_version}/:/tmp/${input_version}/ harbor.mellanox.com/sw-linux-devops/cross_compile:${compiler_ver}
-
+if [ "X$external_headers" == "X" ];then
+	sudo docker run -it --rm --entrypoint=/bin/bash --tmpfs /build:rw,exec,nosuid,mode=755,size=20G --name=${container_name} --mount type=tmpfs,target=/tmp/ -v ${repo_path}/.git:/git-repo/:ro -v /tmp/output:/output -v /.autodirect/mswg2/work/kernel.org/x86_64/${input_version}/:/tmp/${input_version}/ harbor.mellanox.com/sw-linux-devops/cross_compile:${compiler_ver}
+else
+	sudo docker run -it --rm --entrypoint=/bin/bash --tmpfs /build:rw,exec,nosuid,mode=755,size=20G --name=${container_name} --mount type=tmpfs,target=/tmp/ -v ${repo_path}/.git:/git-repo/:ro -v /tmp/output:/output -v ${external_headers}:/tmp/${input_version}/ harbor.mellanox.com/sw-linux-devops/cross_compile:${compiler_ver}
+fi
 fi
