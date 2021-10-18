@@ -12,6 +12,7 @@ my_flags=""
 script_name="init_docker"
 selected_module=""
 without_odp=0
+without_xdp=0
 build_dir="do_build3"
 module_list="
 'ib_core'\n'mlx5_mod'\n'ib_ipoib'\n'mlxfw'\n'rxe'\nfpga\nfpga_with_ipsec\n'all'\n'custom'\n
@@ -28,6 +29,9 @@ do
 	case "$1" in
 		--without-odp)
 		without_odp=1
+		;;
+		--without--xdp)
+		without_xdp=1
 		;;
 		-l | --module-list)
 		echo "module list:"
@@ -77,7 +81,8 @@ do
 	important: need to source this script for full functionality.
 
 		-h, --help 		display this help message and exit
-		--without-odp		ignore odp feature at configure
+		--without-odp		ignore ODP feature at configure
+		--without-xdp		ignore XDP feature at configure
 		-m, --module 		config environment for specific module [default module is ib_core]
 					[custom example: -m custom "--package=--with-core-mod --package=--with-user_mad-mod --package=--with-user_access-mod --package=--with-addr_trans-mod --package=--with-memtrack"]
 		-l, --module-list	display available MODULEs and exit
@@ -98,6 +103,9 @@ then
 fi
 if [ $without_odp -eq 1 ]; then
 	my_flags="$my_flags --without-odp"
+fi
+if [ $without_xdp -eq 1 ]; then
+	my_flags="$my_flags --without-xdp"
 fi
 echo "compile flags: $my_flags"
 echo "start docker build"
