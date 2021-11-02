@@ -72,10 +72,12 @@ git clone ssh://${my_user}@l-gerrit.mtl.labs.mlnx:29418/mlnx_ofed/mlnx-ofa_kerne
 cd mlnx-ofa_kernel-4.0
 git checkout -b ofed_${ofed_version} origin/mlnx_ofed_${ofed_version}
 echo "inside ${PWD} directory"
-echo "creating links..."
-ln -s ofed_scripts/configure
-ln -s ofed_scripts/makefile 
-ln -s ofed_scripts/Makefile 
+if [ ! -e configure ]; then
+	echo "creating links..."
+	ln -s ofed_scripts/configure
+	ln -s ofed_scripts/makefile 
+	ln -s ofed_scripts/Makefile
+fi
 echo "finished creating ofed environment"
 echo "----------------------------------"
 if [ -z "$configure_ofed_env_location" ]
