@@ -1,0 +1,15 @@
+#!/bin/bash
+
+make -j20 AUTOVERSION=2 && sudo make install
+if [ $? -ne 0 ]; then
+	echo "Something went wrong"
+	exit 1
+fi
+sudo /etc/init.d/openibd force-restart
+modinfo mlx5_core
+echo
+echo
+echo "--------------------------------------"
+echo "FINISHED: Please verify module version"
+echo "--------------------------------------"
+
