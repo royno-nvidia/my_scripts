@@ -30,7 +30,7 @@ do
 		--without-odp)
 		without_odp=1
 		;;
-		--without--xdp)
+		--without-xdp)
 		without_xdp=1
 		;;
 		-l | --module-list)

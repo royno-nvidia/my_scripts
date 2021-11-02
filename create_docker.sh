@@ -87,6 +87,7 @@ else
 
 		-h, --help 		display this help message and exit
 		--without-odp		ignore odp feature at configure
+		--without-xdp		ignore XDP feature at configure
 		-m, --module 		config environment for specific module [default module is ib_core]
 		-l, --module-list	display available MODULEs and exit
 "
@@ -99,7 +100,7 @@ minor=$(echo $input_version | sed -e 's/linux-//g' | sed -e 's/-.*//g' |cut -d".
 		#compiler_ver="rhel8"
 #	fi
 #fi
-sudo cp /swgwork/royno/OFED/my_scripts/init_docker.sh /tmp/output/
+sudo cp -f /swgwork/royno/OFED/my_scripts/init_docker.sh /tmp/output/
 if [ "X$external_headers" == "X" ];then
 	sudo docker run -it --rm --entrypoint=/bin/bash --tmpfs /build:rw,exec,nosuid,mode=755,size=20G --name=${container_name} --mount type=tmpfs,target=/tmp/ -v ${repo_path}/.git:/git-repo/:ro -v /tmp/output:/output -v /.autodirect/mswg2/work/kernel.org/x86_64/${input_version}/:/tmp/${input_version}/ harbor.mellanox.com/sw-linux-devops/cross_compile:${compiler_ver}
 else

@@ -21,7 +21,7 @@ MODULE_LIST="
 	'ib_core'\n''mlx5_mod'\n'ib_ipoib'\n'mlxfw'\n'rxe'\n'fpga'\n'fpga_with_ipsec'\n'custom'\n'all'
 "
 
-KERNEL_ARR=("linux-5.15-rc3" "linux-5.14" "linux-5.13" "linux-5.12" "linux-5.11" "linux-5.10-rc2" "linux-5.9" "linux-5.9-rc2" "linux-5.8" "linux-5.7" "linux-5.6" "linux-5.5" "linux-5.4" "linux-5.3.7-301.fc31.x86_64" "linux-5.3" "linux-5.2" "linux-5.0" "linux-4.20" "linux-4.19" "linux-4.18.0-305.el8.x86_64" "linux-4.18.0-240.el8.x86_64" "linux-4.18.0-193.el8.x86_64" "linux-4.18.0-147.el8.x86_64" "linux-4.18.0-ngn" "linux-4.18" "linux-4.17-rc1" "linux-4.16" "linux-4.15" "linux-4.14.3" "linux-4.13" "linux-4.12-rc6" "linux-4.11" "linux-4.10-Without-VXLAN" "linux-4.10-IRQ_POLL-OFF" "linux-4.10" "linux-4.9" "linux-4.8-rc4" "linux-4.7-rc7" "linux-4.6.3" "linux-4.5.1" "linux-4.4.73-5-default" "linux-4.4.21-69-default" "linux-4.4.0-22-generic" "linux-4.4" "linux-4.3-rc6" "linux-4.2-rc8" "linux-4.1.12-37.5.1.el6uek.x86_64" "linux-4.1" "linux-4.0.1" "linux-3.19.0" "linux-3.10.0-327.el7.x86_64" "linux-3.10.0-514.el7.x86_64-ok" "linux-3.10.0-693.el7.x86_64" "linux-3.10.0-862.el7.x86_64" "linux-3.10.0-957.el7.x86_64" "linux-3.10.0-1149.el7.x86_64")
+KERNEL_ARR=("linux-5.15-rc3" "linux-5.14" "linux-5.13" "linux-5.12" "linux-5.11" "linux-5.10-rc2" "linux-5.9" "linux-5.9-rc2" "linux-5.8" "linux-5.7" "linux-5.6" "linux-5.5" "linux-5.4" "linux-5.3.7-301.fc31.x86_64" "linux-5.3" "linux-5.2" "linux-5.0" "linux-4.20" "linux-4.19" "linux-4.18.0-305.el8.x86_64" "linux-4.18.0-240.el8.x86_64" "linux-4.18.0-193.el8.x86_64" "linux-4.18.0-147.el8.x86_64" "linux-4.18" "linux-4.17-rc1" "linux-4.16" "linux-4.15" "linux-4.14.3" "linux-4.13" "linux-4.12-rc6" "linux-4.11" "linux-4.10-Without-VXLAN" "linux-4.10-IRQ_POLL-OFF" "linux-4.10" "linux-4.9" "linux-4.8-rc4" "linux-4.7-rc7" "linux-4.6.3" "linux-4.5.1" "linux-4.4.73-5-default" "linux-4.4.21-69-default" "linux-4.4.0-22-generic" "linux-4.4" "linux-4.3-rc6" "linux-4.2-rc8" "linux-4.1.12-37.5.1.el6uek.x86_64" "linux-4.1" "linux-4.0.1" "linux-3.19.0" "linux-3.10.0-327.el7.x86_64" "linux-3.10.0-514.el7.x86_64-ok" "linux-3.10.0-693.el7.x86_64" "linux-3.10.0-862.el7.x86_64" "linux-3.10.0-957.el7.x86_64" "linux-3.10.0-1149.el7.x86_64")
 
 SCRIPT_NAME="run_manual_cc"
 compiler_ver="rhel8"
@@ -236,7 +236,7 @@ do
 		-g, --git-repo		replace default path for git repository job will use as base code.
 					this path must point to /mlnx-ofa_kernel-4.0/ directory
 		-d, --debug-mode	activace 'set -x' will output all script log, still activate job.
-		-c, --compiler		Choose compiler version [Default rhel8]
+		--compiler		Choose compiler version [Default rhel8]
 "
 		exit 1
 		;;
