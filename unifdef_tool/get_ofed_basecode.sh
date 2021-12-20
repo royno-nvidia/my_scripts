@@ -26,23 +26,19 @@
 # and/or other materials provided with the distribution.
 #
 # Author: Roy Novich <royno@nvidia.com>
-#
-# IMPORTANT: This script must be run as root
 
 SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-SCRIPT_NAME=$(basename "$0")
-ofa=$(\ls /usr/src | grep mlnx-ofa_kernel-)
-ofa_dir=/usr/src/$ofa/
+SCRIPT_NAME="$(basename "$0")"
+WORK_DIR="$(dirname $(dirname ${SCRIPTS_DIR}))"
 CUSTOM_OFA_DIR=
 CUSTOM_CONFIG=
-BCK_DIR="/var/tmp/${ofa}_backup"
-CONFIG=/tmp/$(date +%s)_final_defs.h 
+CONFIG=$(mktemp "/tmp/final_defs_XXXXXX.h")
 while [ ! -z "$1" ]
 do
 	case "$1" in
 		-d | --directory)
-		CUSTOM_OFA_DIR=$2
-		if [ ! -d $CUSTOM_OFA_DIR ]; then
+		CUSTOM_OFA_DIR="$2"
+		if [ ! -d "$CUSTOM_OFA_DIR" ]; then
 			echo "Path '$CUSTOM_OFA_DIR' is not a directory,"
 			echo "Please make sure to give mlnx_ofed directory path as argument."
 			echo "Aborting.."
@@ -51,8 +47,8 @@ do
 		shift;
 		;;
 		-c | --config-file)
-		CUSTOM_CONFIG=$2
-		if [ ! -f $CUSTOM_CONFIG ]; then
+		CUSTOM_CONFIG="$2"
+		if [ ! -f "$CUSTOM_CONFIG" ]; then
 			echo "Path '$CUSTOM_CONFIG' is not a file,"
 			echo "Please make sure to give config.h file path as argument."
 			echo "Aborting.."
@@ -62,106 +58,109 @@ do
 		;;
 		-h | --help)
 		echo "Usage: ${SCRIPT_NAME} [options]
-			
+
 	use this script to get OFED code without #ifdef.
+
 
 		-h, --help 		Display this help message and exit.
 		-d, --directory		Path to specific OFED directory,
-					default is '$ofa_dir'
+					default is '$WORK_DIR'
 		-c, --config-file	Path to specific ready config file,
 					script will not create new one.
+
+	Requirements:
+	-------------
+	1. unifdef must be installed over setup.
+	2. OFED must be after configure stage.
+
 "
 		exit 1
 		;;
 		*)
 		echo "-E- Unsupported option: $1" >&2
-		echo "use -h flag to display help menu" 
+		echo "use -h flag to display help menu"
 		exit 1
 		;;
-	esac 
+	esac
 	shift
 done
 if [ ! -z "$CUSTOM_OFA_DIR" ];then
-	ofa_dir=$CUSTOM_OFA_DIR
-	dir_owner=$(stat -c '%U' $ofa_dir)
-	if [ ! "$USER" == "$dir_owner" ]; then
-		echo "$USER, please run this script as given dir owner: $dir_owner"
-		echo "Aborting.."
-		exit 1
-	fi
-	BCK_DIR="/var/tmp/$(basename $ofa_dir)_$(date +%Y-%m-%d_%H-%M)_backup"
-	IS_GIT="$(git rev-parse --is-inside-work-tree 2>/dev/null)"
-
-else
-	if [ ! "$USER" == "root" ]; then
-		echo "$USER, please run this script as root"
-		echo "Aborting.."
-		exit 1
-	fi
-	if [ -z "$ofa" ]; then
-		echo "-E- No Kernel src found, Aborting.." >&2
-		exit 1
-	fi
+	WORK_DIR="$CUSTOM_OFA_DIR"
 fi
-echo "script running.."
+echo "Verify script requirements"
+if ! command -v unifdef &> /dev/null; then
+	echo "'unifdef' must be installed before script use, Aborting.." >&2
+	exit 1
+fi
+dir_owner=$(stat -c '%U' "$WORK_DIR")
+if [ ! "$USER" == "$dir_owner" ]; then
+	echo "$USER, please run this script as given dir owner: $dir_owner" >&2
+	echo "Aborting.." >&2
+	exit 1
+fi
+cd "$WORK_DIR"
+IS_GIT="$(git rev-parse --is-inside-work-tree 2>/dev/null)"
 if [ ! "$IS_GIT" = true ];then
-	if [ ! -d $BCK_DIR ];then
-		echo "Copy backup to $BCK_DIR"
-		sudo /bin/cp -rf $ofa_dir $BCK_DIR
-	else
-		echo "Directory '$BCK_DIR' exists, Aborting.."
+		echo "-E- The given directory: ${WORK_DIR} must be git repo, Aborting.." >&2
 		exit 1
-	fi
 fi
-cd $ofa_dir
-echo "Inside $PWD"
 if [ ! -f "compat/config.h" ]; then
-	echo "Configuring ofed envaironment"
-	/swgwork/royno/OFED/my_scripts/configure_ofed_env
-	if [ $? -ne 0 ];then
-		echo
-		echo "Script failed.."
+	echo "-E- 'compat/config.h' is missing!" >&2
+	echo "Script must be run after ./configure stage, Aborting.." >&2
+	exit 1
+fi
+if [ -z "$CUSTOM_CONFIG" ];then
+	"$SCRIPTS_DIR"/help_scripts/build_defs_file.sh "$WORK_DIR" "$CONFIG"
+	if [ $? -ne 0 ]; then
 		exit 1
 	fi
-fi
-echo "Configure Done"
-if [ -z "$CUSTOM_CONFIG" ];then
-	echo "Create config file"
-	$SCRIPTS_DIR/build_defs_file.sh $ofa_dir $CONFIG
 else
-	$SCRIPTS_DIR/unifdef_installer.sh
-	CONFIG=$CUSTOM_CONFIG
+	"$SCRIPTS_DIR"/help_scripts/build_defs_file.sh "$CUSTOM_CONFIG" "$CONFIG"
 fi
 if [ ! -f "${CONFIG}" ]; then
 	echo "-E- Config file does not exist at '${CONFIG}'" >&2
 	exit 1
 fi
+echo "Verify '${CONFIG}'"
+file="$(mktemp ${WORK_DIR}/check_XXXXXX.c)"
+trap "rm -rf $file" 0
+unifdef -f "${CONFIG}" "$file"
+if [ "$?" -eq 2 ]; then
+	echo
+	echo "-E- Config file need manual edit:
+preprocessor directives [#if|#else|#endif] must be removed from file
+Aborting..." >&2
+	exit 1
+fi
+echo "Verification done, start running.."
 # This part search & remove risk defines that can change their values during compilation
-for d in $(grep -rE "^#define.*HAVE_.*|^#undef.*HAVE_.*" | grep -v compat/config | grep -v compat/configure.ac | grep -v backports | grep -v output | grep -vi binary | sed 's/.*\(HAVE_[A-Z0-9_]*\).*/\1/' | sort | uniq) 
-do 
-	sed -i "/\<${d}\>/d" ${CONFIG}
+echo "search & remove risk defines that can change their values during compilation"
+for d in $(grep -rE "^#define.*HAVE_.*|^#undef.*HAVE_.*" | grep -v compat/config | grep -v compat/configure.ac | grep -v backports | grep -v output | grep -vi binary | sed 's/.*\(HAVE_[A-Z0-9_]*\).*/\1/' | sort | uniq)
+do
+	sed -i "/\<${d}\>/d" "${CONFIG}"
 done
 echo "start cleaning files.."
-for i in $(find ${ofa_dir} \( -name '*.c' -o \
+for i in $(find "${WORK_DIR}" \( -name '*.c' -o \
 			  -name '*.h' -o \
 			  -name 'Kbuild' -o \
 			  -name 'Makefile' \) )
 do
+	if echo "$i" | grep -qE ".*config\.h"; then
+		echo "-I- Ignore $i file"
+		continue
+	fi
 	echo "cleaning ${i} ..."
-	unifdef -f ${CONFIG} ${i} -o ${i}.tmp
-	mv -f ${i}.tmp $i
+	unifdef -f "${CONFIG}" "${i}" -o "${i}".tmp
+	mv -f "${i}".tmp "$i"
 done
-if [ "$IS_GIT" = true ];then
-	git add -u
-	git commit -s -m "BASECODE: remove #ifdef from code"
-fi
+echo "Create git commit"
+git add -u
+git commit -s -m "BASECODE: remove #ifdef from code"
 echo
 echo "Script ended succsfully!"
 echo "---------------------------------------------------------------------------"
-echo "OFED plain basecode directory: '$ofa_dir'"
-if [ ! "$IS_GIT" = true ];then
-echo "Original OFED directory: '$BCK_DIR'"
-fi
+echo "OFED plain basecode directory: '$WORK_DIR'"
 echo "Config used: '$CONFIG'"
 echo "---------------------------------------------------------------------------"
-
+echo
+echo "Revert changes by running 'git reset --hard HEAD^'"

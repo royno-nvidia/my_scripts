@@ -26,55 +26,70 @@
 # and/or other materials provided with the distribution.
 #
 # Author: Roy Novich <royno@nvidia.com>
-# 
+#
 # Script usage: ./build_defs_file.sh <ofed_dir_path> <output_filename(optional)>
 # This script uses to build config file unifdef can handle from given OFED dir
+
 if [ -d "$1" ]; then
 	IS_DIR=1
-	WORK_DIR=$1
-	COMPAT_FILE=$WORK_DIR/compat/config.h
+	WORK_DIR="$1"
+	CONFIG_FILE="$WORK_DIR"/compat/config.h
 else
 	if [ -f "$1" ]; then
-	IS_DIR=0
-	COMPAT_FILE=$1
+		IS_DIR=0
+		CONFIG_FILE="$1"
+		WORK_DIR="$(pwd)"
 	else
 		echo "-E- Argument 1 for script must be directory/file path"
 		exit 1
 	fi
 
 fi
-echo $COMPAT_FILE
 SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-CONFIG_PATH=/tmp/config.h
-CONFIGURE_PATH=/tmp/configure.ac
-MK_PATH=${WORK_DIR}/configure.mk.kernel
-DEFSFILE=/tmp/defs_file.h
-FINAL=$2
-if [ -z "$FINAL" ];then
-	FINAL=/tmp/final_defs.h
+TEMP_DIR="$(mktemp -d ${WORK_DIR}/defs_XXXXXX)"
+TMP_CONFIG="${TEMP_DIR}/config.h"
+TMP_CONFIGURE="${TEMP_DIR}/configure.ac"
+TMP_DEF="${TEMP_DIR}/defs_file.h"
+MK_PATH="${WORK_DIR}/configure.mk.kernel"
+FINAL_CONFIG="$2"
+
+cleanup()
+{
+	echo "Clean tmp files"
+	rm -rf "${TEMP_DIR}"
+}
+trap cleanup 0
+
+if [ -z "$FINAL_CONFIG" ];then
+	FINAL_CONFIG="${TEMP_DIR}/final_defs.h"
 fi
 
-sudo rm -rf $CONFIG_PATH $CONFIGURE_PATH $DEFSFILE
-echo "start build compat file '$FINAL' for unifdef use"
-cp $COMPAT_FILE /tmp/$(date +%s)_$(basename $COMPAT_FILE)
-$SCRIPTS_DIR/split_config_h.sh $COMPAT_FILE
-$SCRIPTS_DIR/handle_config_h.sh $CONFIG_PATH
-$SCRIPTS_DIR/handle_configure_ac.sh $CONFIGURE_PATH
+echo "Start build compat file '$FINAL_CONFIG' for unifdef use"
+"$SCRIPTS_DIR"/split_config_h.sh "$CONFIG_FILE" "${TEMP_DIR}"
+if [ $? -ne 0 ]; then
+	exit 1
+fi
+cat "$TMP_CONFIG" | "$SCRIPTS_DIR/handle_config_h.sh" > "$TMP_DEF"
+if [ "$IS_DIR" -eq 0 ];then
+	cat "$TMP_DEF" >> "$FINAL_CONFIG"
+else
+	cat "$TMP_CONFIGURE" | "$SCRIPTS_DIR/handle_configure_ac.sh" > "$TMP_CONFIGURE.bck"
+	mv -f "$TMP_CONFIGURE.bck" "$TMP_CONFIGURE"
 
-echo "/*-----------------------*/" > $FINAL
-echo "/* config.h defs section */" >> $FINAL
-echo "/*-----------------------*/" >> $FINAL
-echo "/*-----------------------*/" >> $DEFSFILE
-echo "/* configure.mk.kernel defs section */" >> $DEFSFILE
-echo "/*-----------------------*/" >> $DEFSFILE
-grep =y ${MK_PATH} | sort | uniq | sed -e 's/=y/ 1/' | sed -e 's/^/#define /' >> $DEFSFILE
-grep -E "=$"  ${MK_PATH} | sort | uniq | sed -e 's/=//' | sed -e 's/^/#undef /' >> $DEFSFILE
-cat $DEFSFILE >> $FINAL
-echo "/*---------------------------*/" >> $FINAL
-echo "/* configure.ac defs section */" >> $FINAL
-echo "/*---------------------------*/" >> $FINAL
-unifdef -f $DEFSFILE $CONFIGURE_PATH >> $FINAL
+	echo "/*-----------------------*/" > $FINAL_CONFIG
+	echo "/* config.h defs section */" >> $FINAL_CONFIG
+	echo "/*-----------------------*/" >> $FINAL_CONFIG
+	echo "/*-----------------------*/" >> $TMP_DEF
+	echo "/* configure.mk.kernel defs section */" >> $TMP_DEF
+	echo "/*-----------------------*/" >> $TMP_DEF
+	grep =y "${MK_PATH}" | sort | uniq | sed -e 's/=y/ 1/' | sed -e 's/^/#define /' >> "$TMP_DEF"
+	grep -E "=$"  "${MK_PATH}" | sort | uniq | sed -e 's/=//' | sed -e 's/^/#undef /' >> "$TMP_DEF"
+	cat "$TMP_DEF" >> "$FINAL_CONFIG"
+	echo "/*---------------------------*/" >> "$FINAL_CONFIG"
+	echo "/* configure.ac defs section */" >> "$FINAL_CONFIG"
+	echo "/*---------------------------*/" >> "$FINAL_CONFIG"
+	unifdef -f "$TMP_DEF" "$TMP_CONFIGURE" >> "$FINAL_CONFIG"
+fi
 
-rm -rf $CONFIG_PATH $CONFIGURE_PATH $DEFSFILE
-echo "'${FINAL}' created"
+echo "File '${FINAL_CONFIG}' fully created"
 

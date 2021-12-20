@@ -1,33 +1,25 @@
 #!/bin/bash
 
+SCRIPT_NAME=$(basename "$0")
 COMPAT_FILE=$1
+TEMP_DIR=$2
 FOR_SED="splited00"
 FOR_UNIFDEF="splited01"
-CONFIG_PATH=/tmp/config.h
-CONFIGURE_PATH=/tmp/configure.ac
+CONFIG_PATH="${TEMP_DIR}/config.h"
+CONFIGURE_PATH="${TEMP_DIR}/configure.ac"
 SPLIT_LINE="Make sure LINUX_BACKPORT macro is defined for all external users"
-echo "splitting file.."
-if [ ! -f $COMPAT_FILE ]; then
-	echo "-E- File entered not exist"
+echo "Splitting file.."
+if [ ! -f "$COMPAT_FILE" ]; then
+	echo "-E- ${SCRIPT_NAME}: File entered not exist"
 	exit 1
 fi
-if !(grep -q "$SPLIT_LINE" $COMPAT_FILE); then
-	echo "-E- Could not found where to split, Aborting.."
-	echo "current split at '${SPLIT_LINE}' pattern"
+if ! grep -q "$SPLIT_LINE" "$COMPAT_FILE"; then
+	echo "-E- ${SCRIPT_NAME}: Could not found where to split, Aborting.."
+	echo "current split looks for '${SPLIT_LINE}' pattern"
 	exit 1
 fi
 
-csplit -q --suppress-matched $COMPAT_FILE "/.*${SPLIT_LINE}.*/" -f splited '{*}'
-mv -f $FOR_SED $CONFIG_PATH
-if [ $? -ne 0 ]; then
-	echo "-E- command 'mv -f $FOR_SED $CONFIG_PATH' failed"
-fi
-mv -f $FOR_UNIFDEF $CONFIGURE_PATH
-if [ $? -ne 0 ]; then
-	echo "-E- command 'mv -f $FOR_UNIFDEF $CONFIGURE_PATH' failed"
-fi
+csplit -q --suppress-matched "$COMPAT_FILE" "/.*${SPLIT_LINE}.*/" -f splited '{*}'
+mv -f "$FOR_SED" "$CONFIG_PATH"
+mv -f "$FOR_UNIFDEF" "$CONFIGURE_PATH"
 rm -rf splited0*
-if [ $? -ne 0 ]; then
-	echo "-E- command 'rm -rf splited0*' failed"
-fi
-
