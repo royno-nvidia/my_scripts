@@ -7,12 +7,13 @@ BASE_DIR=""
 BACK_DIR=""
 CLEANUP=0
 new_cmsg=""
+author=""
 
 build_new_commit()
 {
 	old_cmsg="$1"
-
-	new_cmsg=$(echo -e "$old_cmsg" | sed -r -e '/(commit|Author|Date|Signed-off)/d' \
+	author=$(echo "$a" | grep -oP "Author:.*>" | sed -r 's/Author: //')
+	new_cmsg=$(echo -e "$old_cmsg" | sed -r -e '/(commit|Author|Date)/d' \
 			-e 's/^[[:space:]]*//;s/[[:space:]]*$//')
 }
 
@@ -106,21 +107,17 @@ fi
 push_branch=$(git rev-parse --abbrev-ref HEAD)
 git checkout $sha -b copy_on_top # checkout to aligned commit to get actual diff
 dir_owner=$(stat -c "%U" "$BACK_DIR")
-ignore="--exclude=.git"
-echo "HERE!!!!"
 # Need to install rsync before script run
 rsync -a --exclude=.git --exclude=backports "$BASE_DIR/" "$BACK_DIR" # copy base applied over backports history
 echo "Create new commit"
 build_new_commit "$cmsg_head"
 echo "new_cmsg= $new_cmsg"
-echo
-echo
-echo
 topic="Automatic_backports_history"
 git add -u; git commit --no-verify -m "$new_cmsg" #miss sign-off
+git commit --amend --author="$author" --no-edit
 push_output=$(git push origin HEAD:refs/for/"$push_branch"/"$topic" 2>&1)
 commit_link="$(echo $push_output | grep -oP "http.*\/[0-9]+")"
-echo "!!!!!!!!!!commit_link= |$commit_link|"
+echo "@@ commit_link= $commit_link @@" # '@@ <String> @@' means <String> will be dump to user from job
 exit 1
 #=========================END============================#
 rm -rf "$TEMP_DIR"
