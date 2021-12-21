@@ -6,6 +6,7 @@ TEMP_DIR="/tmp/update_history"
 BASE_DIR=""
 BACK_DIR=""
 CLEANUP=0
+DEBUG=0
 new_cmsg=""
 author=""
 
@@ -17,7 +18,6 @@ build_new_commit()
 			-e 's/^[[:space:]]*//;s/[[:space:]]*$//')
 }
 
-echo "Parsing Arguments"
 while [ ! -z "$1" ]
 do
 	case "$1" in
@@ -36,6 +36,10 @@ do
 		;;
 		--cleanup)
 		CLEANUP=1
+		shift
+		;;
+		--debug)
+		DEBUG=1
 		shift
 		;;
 		-h | --help)
@@ -60,45 +64,51 @@ if [ "$CLEANUP" -eq 1 ]; then
 	git branch -D copy_on_top
 	exit 1
 fi
-
-echo "base = $BASE_DIR
-backport = $BACK_DIR"
-
+if [ "$DEBUG" -eq 1 ]; then
+	echo "base = $BASE_DIR
+	backport = $BACK_DIR"
+fi
 cd "$BASE_DIR"
-echo "inside $(pwd)"
-echo
-echo "saving HEAD commit:"
 cmsg_head=$(git log --color=never -1)
-echo  "cmsg_head=
-$cmsg_head"
 cur_branch=$(git rev-parse --abbrev-ref HEAD)
-echo "cur_branch= $cur_branch"
 merge_ancestor="$(git rev-list poc_5_6 ^origin/poc_5_6 | tail -1)^"
 cmsg_merge="$(git log --color=never -1 $merge_ancestor)"
-echo  "cmsg_merge=
-$cmsg_merge"
 search_id=$(echo $cmsg_merge | grep -oE 'I[0-9a-f]{40}')
-echo "search_id= |$search_id|"
+if [ "$DEBUG" -eq 1 ]; then
+	echo "inside $(pwd)"
+	echo
+	echo "saving HEAD commit:"
+	echo  "cmsg_head=
+	$cmsg_head"
+	echo "cur_branch= $cur_branch"
+	echo  "cmsg_merge=
+	$cmsg_merge"
+	echo "search_id= |$search_id|"
+fi
 if [ ! -f backports_applied ];then
 	"$BASE_DIR"/ofed_scripts/ofed_patch.sh >/dev/null 2>&1  # Apply patches to ready for copy
 	# this place need to check if ofed_patch failed!
 fi
-echo "------------------STAGE 1 finished--------------------------"
+if [ "$DEBUG" -eq 1 ]; then
+	echo "------------------STAGE 1 finished--------------------------"
+	echo "inside $(pwd)"
+fi
 cd "$BACK_DIR"
-echo "inside $(pwd)"
 for sha in $(git log --pretty="%h") #search for similar change-id
 do
-	echo "------------------------------------------------"
 	cur_cmsg="$(git log -1 $sha)"
 	cur_id="$(echo "$cur_cmsg" | grep -oE 'I[0-9a-f]{40}')"
-	echo "$cur_id"
 	if [ "$cur_id" = "$search_id" ];then
-		echo "similar!! at commit:
-		$cur_cmsg"
+		if [ "$DEBUG" -eq 1 ]; then
+			echo "------------------------------------------------"
+			echo "$cur_id"
+			echo "similar!! at commit:
+			$cur_cmsg"
+			echo "------------------------------------------------"
+		fi
 		FOUND=1
 		break
 	fi
-	echo "------------------------------------------------"
 done
 if [ "$FOUND" -ne 1 ];then
 	# What happen if fail?
@@ -109,16 +119,18 @@ git checkout $sha -b copy_on_top # checkout to aligned commit to get actual diff
 dir_owner=$(stat -c "%U" "$BACK_DIR")
 # Need to install rsync before script run
 rsync -a --exclude=.git --exclude=backports "$BASE_DIR/" "$BACK_DIR" # copy base applied over backports history
-echo "Create new commit"
 build_new_commit "$cmsg_head"
-echo "new_cmsg= $new_cmsg"
 topic="Automatic_backports_history"
 git add -u; git commit --no-verify -m "$new_cmsg" #miss sign-off
 git commit --amend --author="$author" --no-edit
 push_output=$(git push origin HEAD:refs/for/"$push_branch"/"$topic" 2>&1)
 commit_link="$(echo $push_output | grep -oP "http.*\/[0-9]+")"
+if [ "$DEBUG" -eq 1 ]; then
+	echo "Create new commit"
+	echo "new_cmsg= $new_cmsg"
+fi
 echo "@@ commit_link= $commit_link @@" # '@@ <String> @@' means <String> will be dump to user from job
-exit 1
+exit 0
 #=========================END============================#
 rm -rf "$TEMP_DIR"
 mkdir -p "$TEMP_DIR"
