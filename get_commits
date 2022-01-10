@@ -128,7 +128,7 @@ if [ $FIXES -eq 1 ] || [ $SLOG_FILTER -eq 1 ]; then
 			fi
 		fi
 		if [ $SLOG_FILTER -eq 1 ]; then
-			sub=$(cat $output_dir/$file | grep -A1 -w "Subject" | sed "s/'//" | xargs | grep -oE "[0-9]*\].*" | grep -oE "[a-zA-Z].*" | head -1)
+			sub=$(cat $output_dir/$file | grep -A1 -w "Subject" | xargs -d '\n' | grep -oE "[0-9]*\].*" | grep -oE "[a-zA-Z].*" | head -1)
 			if (echo "$SLOG" | grep -qE "$sub *$");then
 				echo "$output_dir/$file - Subject inside, removing.."
 				rm -rf $output_dir/$file
