@@ -5,8 +5,9 @@ import subprocess
 from pygit2 import Repository
 from pygit2 import GIT_SORT_TOPOLOGICAL
 
-def create_mail(problens=[], workspace='/tmp'):
-    if problens:
+
+def create_attached(problems=[], workspace='/tmp'):
+    if problems:
         html_string = """
         <!DOCTYPE html>
         <html>
@@ -15,8 +16,10 @@ def create_mail(problens=[], workspace='/tmp'):
         </style>
         </head>
         <body>
+        <h1>OFED history verifier output</h1>
         """
-        html_string += '\n'.join(problens)
+        for prob in problems:
+            html_string += f'<p>{prob}</p>\n'
         html_string += """
                         </body>
                         </html>
@@ -39,12 +42,15 @@ def get_change_id_from_cmsg(commit):
         return None
 
 
-def add_new_problem(actual_diff, base_sha, back_sha):
+def add_new_problem(actual_diff, base_sha, back_sha, base_path, back_path):
+    ret = [f"Base commit {base_sha} and History commit {back_sha} are not aligned"]
+    for i in actual_diff:
+        ret.append(i.replace(base_path, '').replace(back_path, ''))
     print(f'DIFF FOUND\n{actual_diff}')
-    return f"Base commit {base_sha} and History commit {back_sha} are not aligned\n" + '\n'.join(actual_diff)
+    return ret
 
 
-def extract_acttual_diff(full_diff: str):
+def extract_actual_diff(full_diff: str):
     ignore_pattern = ['Only in', 'backports', '.git', 'quiltrc', 'tags']
     relevant_diff = []
     for line in full_diff.split('\n'):
@@ -127,17 +133,19 @@ def main():
         operate_on_backport_side(back_path, data, base_path, back_path)
 
         diff = run_shell_command(f"diff -qr {base_path} {back_path}")
-        actual_diff = extract_acttual_diff(diff)
+        actual_diff = extract_actual_diff(diff)
         if actual_diff:
-            problems.append(add_new_problem(actual_diff, data['base'], data['back']))
+            problems.append(f"Base commit {data['base']} and History commit {data['back']} are not aligned")
+            for line in actual_diff:
+                problems.append(line)
 
     reset_directories(base_path, back_path, origin_branch)
 
     if problems:
         rc = len(problems)
-        print(f'Found {rc} un-aligned commits')
+        print(f'Found problems in commits')
         print('\n'.join(problems))
-        create_mail(problems, args.workspace)
+        create_attached(problems, args.workspace)
         exit(rc)
     else:
         print(f'No Problems found!')
