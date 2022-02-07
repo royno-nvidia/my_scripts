@@ -28,18 +28,23 @@ Validate_user_arguments()
 			echo "-E- base branch origin/${BASE_BRANCH} is missing, Aborting"
 			exit 1
 		fi
-		if [ "$(git ls-remote --heads origin ${BASE_BRANCH}_history | wc -l)" -eq 0 ]; then
+		if [ "$(git ls-remote --heads origin ${BASE_BRANCH}_history | wc -l)" -gt 0 ]; then
 			echo "-E- backport branch origin/${BASE_BRANCH}_history already exist... Aborting"
 			exit 1
 		fi
 		return
 	fi
 }
+
 prepare_repo()
 {
 	git checkout origin/${BASE_BRANCH} -b "${local_branch}"
 	rev=$(git rev-parse --verify --short HEAD)
 	./ofed_scripts/ofed_patch.sh
+	if [ ! -f backports_applied ];then
+		echoerr "Failed in patches apply!, Aborting"
+		exit 1
+	fi
 	git reset ${rev}
 	rm -rf backports
 }
